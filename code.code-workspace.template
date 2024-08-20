@@ -1,0 +1,139 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "extensions": {
+    "recommendations": [
+      "vadimcn.vscode-lldb",
+      "llvm-vs-code-extensions.vscode-clangd",
+      "mhutchie.git-graph",
+      "bbenoist.QML",
+      "ms-vscode.cmake-tools",
+      "sergiokdab.qttest"
+    ]
+  },
+  "settings": {
+    "files.trimTrailingWhitespace": true,
+    "editor.formatOnSave": true,
+    "clangd.arguments": ["-header-insertion=never", "--clang-tidy=false"],
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "files.insertFinalNewline": true,
+    "files.associations": {
+      "*.code-workspace.template": "json"
+    }
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Current Target (LLDB Linux)",
+        "type": "lldb",
+        "request": "launch",
+        "program": "${command:cmake.launchTargetPath}",
+        "args": [],
+        "cwd": "${command:cmake.buildDirectory}",
+        "gen.os": "linux",
+        "@@{linux_lldb_printers}": ""
+      },
+      {
+        "name": "Current Target (LLDB macOS)",
+        "type": "lldb",
+        "request": "launch",
+        "program": "${command:cmake.launchTargetPath}",
+        "args": [],
+        "cwd": "${command:cmake.buildDirectory}",
+        "gen.os": "macos",
+        "sourceMap": {
+          "/Users/qt/work/qt": "$${QT_INSTALL}/../Src"
+        },
+        "initCommands": [
+          "command script import \"$${QT_SDK_INSTALL}/Qt Creator.app/Contents/Resources/debugger/lldbbridge.py\""
+        ]
+      },
+      {
+        "name": "Current Target (VS)",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${command:cmake.launchTargetPath}",
+        "args": [],
+        "cwd": "${command:cmake.buildDirectory}",
+        "gen.os": "windows",
+        "visualizerFile": "${workspaceFolder}/qt6.natvis",
+        "sourceFileMap": {
+          "C:/work/build/qt5_workdir/w/s": "$${QT_INSTALL}/../Src",
+          "Q:/qt5_workdir/w/s": "$${QT_INSTALL}/../Src",
+          "C:/Users/qt/work/install": "$${QT_INSTALL}/../Src",
+          "C:/Users/qt/work/qt": "$${QT_INSTALL}/../Src"
+        }
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "gen.os": "linux",
+        "label": "Run current target under valgrind",
+        "command": "/usr/bin/valgrind",
+        "type": "shell",
+        "args": ["${command:cmake.launchTargetPath}"],
+        "presentation": {
+          "reveal": "always"
+        },
+        "options": {
+          "cwd": "${command:cmake.buildDirectory}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Qt Assistant",
+        "type": "shell",
+        "command": "assistant",
+        "problemMatcher": []
+      },
+      {
+        "label": "Run Qt Designer",
+        "type": "shell",
+        "command": "designer",
+        "problemMatcher": []
+      }
+    ]
+  },
+  "gen.globals": {
+    "linux_lldb_printers": {
+      "sourceMap": {
+        "/home/qt/work/qt": "$${QT_INSTALL}/../Src"
+      },
+      "initCommands": [
+        "command script import $${QT_SDK_INSTALL}/Tools/QtCreator/share/qtcreator/debugger/lldbbridge.py"
+      ]
+    }
+  },
+  "gen.cmakepresets": {
+    "version": 3,
+    "configurePresets": [
+      {
+        "name": "dev",
+        "description": "dev",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build-dev",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        }
+      },
+      {
+        "name": "rel",
+        "description": "rel",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build-rel",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        }
+      }
+    ]
+  }
+}
