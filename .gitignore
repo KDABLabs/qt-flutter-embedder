@@ -1,3 +1,5 @@
 /build-*
 compile_commands.json
 .cache/
+/examples/default_counter_app/linux/flutter/generated_plugins.cmake
+/examples/default_counter_app/windows/flutter/generated_plugins.cmake
