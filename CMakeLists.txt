@@ -1,3 +1,10 @@
+# This file is part of qt-flutter-embedder.
+#
+# SPDX-FileCopyrightText: 2024 Klarälvdalens Datakonsult AB, a KDAB Group
+# company <info@kdab.com> Author: Sérgio Martins <sergio.martins@kdab.com>
+# SPDX-License-Identifier: GPL-3.0-only Contact KDAB at <info@kdab.com> for
+# commercial licensing options.
+
 cmake_minimum_required(VERSION 3.21)
 project(qtwidgets_basic)
 
@@ -5,7 +12,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIRS ON)
 
-find_package(Qt6 6.7 NO_MODULE REQUIRED COMPONENTS Widgets)
+find_package(Qt6 6.7 NO_MODULE REQUIRED COMPONENTS Widgets OpenGL)
 
 if(NOT DEFINED ENV{FLUTTER_ENGINE_FOLDER})
   message(FATAL_ERROR "Point env var FLUTTER_ENGINE_FOLDER to engine folder")
@@ -14,19 +21,35 @@ endif()
 if(MSVC)
   set(FLUTTER_ENGINE_LIBRARY flutter_engine.dll.lib)
 else()
-  if(QT_EMBEDDER_AOT)
-    set(FLUTTER_ENGINE_LIBRARY rel/libflutter_engine.so)
+  if(EXISTS "$ENV{FLUTTER_ENGINE_FOLDER}/rel/")
+    if(QT_EMBEDDER_AOT)
+      set(FLUTTER_ENGINE_LIBRARY rel/libflutter_engine.so)
+    else()
+      set(FLUTTER_ENGINE_LIBRARY dbg_unopt/libflutter_engine.so)
+    endif()
+    set(FLUTTER_ENGINE_INCLUDE_DIR $ENV{FLUTTER_ENGINE_FOLDER})
   else()
-    set(FLUTTER_ENGINE_LIBRARY dbg/libflutter_engine.so)
+    set(FLUTTER_ENGINE_LIBRARY ../out/host_debug_unopt/libflutter_engine.so)
+    set(FLUTTER_ENGINE_INCLUDE_DIR
+        $ENV{FLUTTER_ENGINE_FOLDER}/../out/host_debug_unopt)
   endif()
 endif()
 
-include_directories($ENV{FLUTTER_ENGINE_FOLDER})
+message(
+  "FLUTTER_ENGINE_LIBRARY=$ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY}"
+)
+message(${FLUTTER_ENGINE_INCLUDE_DIR})
+include_directories(${FLUTTER_ENGINE_INCLUDE_DIR})
 
-add_executable(qtembedder main.cpp)
+if(ENABLE_ASAN)
+  add_compile_options(-fsanitize=address -fsanitize=undefined)
+  add_link_options(-fsanitize=address -fsanitize=undefined)
+endif()
 
-target_link_libraries(qtembedder Qt6::Widgets
-                      $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY})
+add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp)
+
+target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL
+                      $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY} EGL)
 
 target_compile_definitions(qtembedder
                            PRIVATE FLUTTER_ICUDTL_DIR="${CMAKE_BINARY_DIR}")
@@ -45,4 +68,8 @@ if(ICUDTL)
     COMMENT "Copying icudtl.dat to ${CMAKE_BINARY_DIR}")
 else()
   message(FATAL_ERROR "icudtl.dat not found!")
+endif()
+
+if(QT_EMBEDDER_AOT)
+  target_compile_definitions(qtembedder PRIVATE FLUTTER_AOT)
 endif()
