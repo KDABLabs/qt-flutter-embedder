@@ -35,9 +35,12 @@
         "type": "lldb",
         "request": "launch",
         "program": "${command:cmake.launchTargetPath}",
-        "args": [],
+        "args": [
+          "examples/default_counter_app/"
+        ],
         "cwd": "${command:cmake.buildDirectory}",
         "initCommands": [
+          "settings set target.process.stop-on-exec false",
           "command script import /data/secured/home/serj/Qt/Tools/QtCreator/share/qtcreator/debugger/lldbbridge.py"
         ],
         "sourceMap": {
@@ -75,6 +78,15 @@
         "type": "shell",
         "command": "designer",
         "problemMatcher": []
+      },
+      {
+        "label": "Build Flutter Engine",
+        "type": "shell",
+        "command": "ninja",
+        "problemMatcher": [],
+        "options": {
+          "cwd": "/data/sources/flutter/engine/src/out/host_debug_unopt"
+        },
       }
     ]
   }

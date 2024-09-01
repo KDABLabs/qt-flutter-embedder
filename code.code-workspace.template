@@ -49,6 +49,7 @@
           "/Users/qt/work/qt": "$${QT_INSTALL}/../Src"
         },
         "initCommands": [
+          "settings set target.process.stop-on-exec false",
           "command script import \"$${QT_SDK_INSTALL}/Qt Creator.app/Contents/Resources/debugger/lldbbridge.py\""
         ]
       },
@@ -107,6 +108,7 @@
         "/home/qt/work/qt": "$${QT_INSTALL}/../Src"
       },
       "initCommands": [
+        "settings set target.process.stop-on-exec false",
         "command script import $${QT_SDK_INSTALL}/Tools/QtCreator/share/qtcreator/debugger/lldbbridge.py"
       ]
     }
