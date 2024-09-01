@@ -85,7 +85,7 @@
         "command": "ninja",
         "problemMatcher": [],
         "options": {
-          "cwd": "/data/sources/flutter/engine/src/out/host_debug_unopt"
+          "cwd": "${env:FLUTTER_ENGINE_FOLDER}/../out/host_debug_unopt"
         },
       }
     ]
