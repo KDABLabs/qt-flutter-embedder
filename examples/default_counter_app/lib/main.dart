@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+final GlobalObjectKey<MyOrangeContainerState> myWidgetKey =
+    GlobalObjectKey<MyOrangeContainerState>('myWidgetKey');
+
 void main() {
   runWidget(ViewCollection(views: [
     View(
@@ -10,9 +13,7 @@ void main() {
     ),
     View(
       view: PlatformDispatcher.instance.views.where((v) => v.viewId == 1).first,
-      child: Container(
-        color: Colors.orange,
-      ),
+      child: MyOrangeContainer(key: myWidgetKey),
     )
   ]));
 }
@@ -42,6 +43,43 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+class MyOrangeContainer extends StatefulWidget {
+  MyOrangeContainer({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return MyOrangeContainerState();
+  }
+}
+
+class MyOrangeContainerState extends State<MyOrangeContainer> {
+  int _window2Counter = 0;
+  void incrementCounter() {
+    setState(() {
+      _window2Counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Window #2',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: Container(
+          color: Colors.orange,
+          child: Center(
+            child: Text(
+              "${_window2Counter}",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ),
+        ));
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
@@ -49,6 +87,11 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+
+    var state = myWidgetKey.currentState;
+    if (state != null) {
+      state.incrementCounter();
+    }
   }
 
   @override
