@@ -24,7 +24,7 @@ class Embedder
 {
 public:
     explicit Embedder(bool multiWindowMode = false);
-    bool initFlutter(int argc, char **argv, const std::string &project_path, const std::string &icudtl_path);
+    bool runFlutter(int argc, char **argv, const std::string &project_path, const std::string &icudtl_path);
 
     _FlutterEngine *engine() const;
 
@@ -53,7 +53,6 @@ public:
     static QSurfaceFormat surfaceFormat();
 
 private:
-    bool runFlutter(const FlutterRendererConfig &config, const FlutterProjectArgs &args);
     QOpenGLContext *m_glContext = nullptr;
     _FlutterEngine *m_flutterEngine = nullptr;
     FlutterCompositor m_flutterCompositor;

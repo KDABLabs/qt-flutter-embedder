@@ -50,15 +50,6 @@ Embedder::Embedder(bool multiWindowMode)
     m_windows << window;
 }
 
-bool Embedder::runFlutter(const FlutterRendererConfig &config, const FlutterProjectArgs &args)
-{
-    FlutterEngineResult result =
-        FlutterEngineRun(FLUTTER_ENGINE_VERSION, &config,
-                         &args, this, &m_flutterEngine);
-
-    return result == kSuccess;
-}
-
 _FlutterEngine *Embedder::engine() const
 {
     return m_flutterEngine;
@@ -69,7 +60,7 @@ FlutterWindow &Embedder::mainWindow() const
     return *m_windows.first();
 }
 
-bool Embedder::initFlutter(int argc, char **argv, const std::string &project_path, const std::string &icudtl_path)
+bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path, const std::string &icudtl_path)
 {
     if (!fs::exists(project_path)) {
         std::cerr << "Project not found: " << project_path << "\n";
@@ -224,8 +215,13 @@ bool Embedder::initFlutter(int argc, char **argv, const std::string &project_pat
         .dart_entrypoint_argv = argv,
     };
 
-    if (!runFlutter(config, args)) {
-        std::cout << "Could not run the Flutter Engine." << std::endl;
+    FlutterEngineResult result =
+        FlutterEngineRun(FLUTTER_ENGINE_VERSION, &config,
+                         &args, this, &m_flutterEngine);
+
+
+    if (result != kSuccess) {
+        qCWarning(qtembedder) << "Could not run the flutter engine.";
         return false;
     }
 

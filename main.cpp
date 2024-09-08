@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     qputenv("QT_XCB_GL_INTEGRATION", "xcb_egl");
 
     QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-    QApplication::setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity); // TODO
+    QApplication::setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity); // TODO: Needed ?
     QApplication app(argc, argv);
 
     QCommandLineParser parser;
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
     const auto icuPath = std::string(FLUTTER_ICUDTL_DIR) + std::string("/icudtl.dat");
 
-    if (!embedder.initFlutter(argc, argv, projectPath.toStdString(), icuPath)) {
+    if (!embedder.runFlutter(argc, argv, projectPath.toStdString(), icuPath)) {
         return -1;
     }
 
