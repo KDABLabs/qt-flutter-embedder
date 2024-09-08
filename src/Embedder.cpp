@@ -247,7 +247,7 @@ void Embedder::createGLContext()
 QSurfaceFormat Embedder::surfaceFormat()
 {
     QSurfaceFormat fmt;
-    fmt.setColorSpace(QColorSpace::SRgb);
+    // fmt.setColorSpace(QColorSpace::SRgb);
     fmt.setDepthBufferSize(8);
     fmt.setStencilBufferSize(8);
     fmt.setAlphaBufferSize(8);
