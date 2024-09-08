@@ -28,6 +28,12 @@ public:
     /// ids are sequential, the first window has id 0
     FlutterViewId id() const;
 
+    /// Returns the OpenGL context
+    QOpenGLContext *glContext() const;
+
+    /// Convenience method to make the window's GL context current
+    bool makeCurrent();
+
 protected:
     void resizeEvent(QResizeEvent *ev) override;
 

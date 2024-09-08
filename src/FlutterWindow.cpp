@@ -125,3 +125,13 @@ FlutterViewId FlutterWindow::id() const
 {
     return m_id;
 }
+
+QOpenGLContext *FlutterWindow::glContext() const
+{
+    return m_embedder.glContext();
+}
+
+bool FlutterWindow::makeCurrent()
+{
+    return glContext()->makeCurrent(this);
+}
