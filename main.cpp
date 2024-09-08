@@ -16,7 +16,6 @@
 
 #include <QApplication>
 #include <QThread>
-#include <QTimer>
 #include <QCommandLineParser>
 
 using namespace KDAB;
@@ -104,10 +103,8 @@ int main(int argc, char **argv)
     }
 
     if (embedder.isMultiWindowMode()) {
-        QTimer::singleShot(1000, [&embedder] {
-            qDebug() << "Adding Window";
-            embedder.addWindow();
-        });
+        qDebug() << "Adding Window";
+        embedder.addWindow();
     }
     return app.exec();
 }
