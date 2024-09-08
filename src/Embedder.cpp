@@ -92,7 +92,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
             embedder->createGLContext();
         }
 
-        const bool result = embedder->glContext()->makeCurrent(&embedder->mainWindow());
+        const bool result = embedder->mainWindow().makeCurrent();
         if (!result)
             qCWarning(qtembedder) << "Failed to make context current; thread=" << QThread::currentThreadId() << "; currentContext=" << QOpenGLContext::currentContext();
 
@@ -174,11 +174,10 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         m_flutterCompositor.struct_size = sizeof(m_flutterCompositor);
         m_flutterCompositor.user_data = this;
         m_flutterCompositor.present_view_callback = [](const FlutterPresentViewInfo *info) {
-            // TODO
-            qCInfo(qtembedder) << "compositor.present_view_callback:";
+            qCInfo(qtembedder) << "compositor.present_view_callback: view=" << info->view_id;
             auto embedder = reinterpret_cast<Embedder *>(info->user_data);
-            auto &window = embedder->mainWindow();
-            embedder->glContext()->swapBuffers(&window);
+            auto window = embedder->windowForId(info->view_id);
+            embedder->glContext()->swapBuffers(window);
             return true;
         };
 
@@ -204,11 +203,19 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
                 *state_changed = false;
                 auto window = reinterpret_cast<FlutterWindow *>(user_data);
                 qCInfo(qtembedder) << "glSurface.make_current_callback id=" << window->id();
+
+                const bool result = window->makeCurrent();
+                if (!result) {
+                    qCWarning(qtembedder) << "Failed to make context current for window" << window->id();
+                    return false;
+                }
+
                 return true;
             };
 
             glSurface.clear_current_callback = [](void *user_data, bool *state_changed) {
                 *state_changed = false;
+                // TODO: Clear color
                 auto window = reinterpret_cast<FlutterWindow *>(user_data);
                 qCInfo(qtembedder) << "glSurface.clear_current_callback id=" << window->id();
                 return true;
@@ -390,7 +397,12 @@ FlutterWindow *Embedder::windowForId(FlutterViewId id) const
         return w->id() == id;
     });
 
-    return it == m_windows.cend() ? nullptr : *it;
+    if (it == m_windows.cend()) {
+        Q_ASSERT(nullptr);
+        return nullptr;
+    }
+
+    return *it;
 }
 
 #define GL_CHARPTR(X) ( const char * )glGetString(X)
