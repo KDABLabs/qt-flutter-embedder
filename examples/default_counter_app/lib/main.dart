@@ -1,7 +1,20 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runWidget(ViewCollection(views: [
+    View(
+      view: PlatformDispatcher.instance.implicitView!,
+      child: const MyApp(),
+    ),
+    View(
+      view: PlatformDispatcher.instance.views.where((v) => v.viewId == 1).first,
+      child: Container(
+        color: Colors.orange,
+      ),
+    )
+  ]));
 }
 
 class MyApp extends StatelessWidget {
