@@ -17,6 +17,7 @@
 
 class QOpenGLContext;
 class QSurfaceFormat;
+class QOffscreenSurface;
 
 namespace KDAB {
 class FlutterWindow;
@@ -31,6 +32,7 @@ public:
     Q_DECLARE_FLAGS(Features, Feature)
 
     explicit Embedder(Features = {});
+    ~Embedder();
     bool runFlutter(int argc, char **argv, const std::string &project_path, const std::string &icudtl_path);
 
     _FlutterEngine *engine() const;
@@ -53,6 +55,9 @@ public:
     /// Returns the OpenGL context for async texture uploads
     QOpenGLContext *textureGlContext() const;
 
+    /// The surface associated with textureGlContext() const;
+    QOffscreenSurface *offscreenSurfaceForTextureUploads() const;
+
     /// Adds a new window
     FlutterWindow *addWindow();
 
@@ -68,6 +73,7 @@ public:
 private:
     QOpenGLContext *m_glContext = nullptr;
     QOpenGLContext *m_textureGlContext = nullptr;
+    QOffscreenSurface *m_offscreenSurface = nullptr;
     _FlutterEngine *m_flutterEngine = nullptr;
     FlutterCompositor m_flutterCompositor;
     QVector<FlutterWindow *> m_windows;

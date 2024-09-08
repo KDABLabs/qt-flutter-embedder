@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QColorSpace>
+#include <QOffscreenSurface>
 #include <QtGui/private/qopenglcontext_p.h>
 
 #include <iostream>
@@ -49,6 +50,11 @@ Embedder::Embedder(Features features)
     window->show();
     window->resize(1000, 1000);
     m_windows << window;
+}
+
+Embedder::~Embedder()
+{
+    delete m_offscreenSurface;
 }
 
 _FlutterEngine *Embedder::engine() const
@@ -141,7 +147,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
             if (!embedder->textureGlContext())
                 embedder->createTextureGLContext();
 
-            embedder->textureGlContext()->makeCurrent(&embedder->mainWindow());
+            embedder->textureGlContext()->makeCurrent(embedder->offscreenSurfaceForTextureUploads());
 
             return true;
         };
@@ -277,6 +283,9 @@ void Embedder::createTextureGLContext()
         Q_ASSERT(false);
         return;
     }
+    m_offscreenSurface = new QOffscreenSurface();
+    m_offscreenSurface->setFormat(surfaceFormat());
+    m_offscreenSurface->create();
 
     m_textureGlContext = new QOpenGLContext();
     m_textureGlContext->setFormat(surfaceFormat());
@@ -306,6 +315,11 @@ QOpenGLContext *Embedder::glContext() const
 QOpenGLContext *Embedder::textureGlContext() const
 {
     return m_textureGlContext;
+}
+
+QOffscreenSurface *Embedder::offscreenSurfaceForTextureUploads() const
+{
+    return m_offscreenSurface;
 }
 
 FlutterWindow *Embedder::addWindow()
