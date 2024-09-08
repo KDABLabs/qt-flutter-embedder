@@ -15,6 +15,7 @@
 #include <string>
 
 #include <QApplication>
+#include <QThread>
 #include <QCommandLineParser>
 
 using namespace KDAB;
@@ -25,12 +26,18 @@ int main(int argc, char **argv)
 
     QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QApplication::setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity); // TODO: Needed ?
+
+    // default format for shared context
+    QSurfaceFormat::setDefaultFormat(Embedder::surfaceFormat());
+
     QApplication app(argc, argv);
 
     QCommandLineParser parser;
     parser.setApplicationDescription("Qt Embedder example");
     QCommandLineOption enableMultiWindowOpt = { { "m", "multiwindow" }, "Enable multi-window mode" };
+    QCommandLineOption enableTextureGLContextOpt = { { "t", "textureGLContext" }, "Enable GL context for texture uploads (broken still)" };
     parser.addOption(enableMultiWindowOpt);
+    parser.addOption(enableTextureGLContextOpt);
     parser.addPositionalArgument("project", "the root of the flutter project directory");
     parser.addHelpOption();
     parser.process(app);
@@ -40,8 +47,17 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    qDebug() << "Qt thread is" << QThread::currentThreadId();
+
     const QString projectPath = parser.positionalArguments().constFirst();
-    Embedder embedder(parser.isSet(enableMultiWindowOpt));
+    Embedder::Features features = {};
+    if (parser.isSet(enableMultiWindowOpt))
+        features |= Embedder::Feature::MultiWindow;
+
+    if (parser.isSet(enableTextureGLContextOpt))
+        features |= Embedder::Feature::TextureGLContext;
+
+    Embedder embedder(features);
 
     const auto icuPath = std::string(FLUTTER_ICUDTL_DIR) + std::string("/icudtl.dat");
 

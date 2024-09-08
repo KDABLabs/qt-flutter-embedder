@@ -23,7 +23,14 @@ class FlutterWindow;
 class Embedder
 {
 public:
-    explicit Embedder(bool multiWindowMode = false);
+    enum class Feature {
+        None,
+        MultiWindow = 1,
+        TextureGLContext = 2
+    };
+    Q_DECLARE_FLAGS(Features, Feature)
+
+    explicit Embedder(Features = {});
     bool runFlutter(int argc, char **argv, const std::string &project_path, const std::string &icudtl_path);
 
     _FlutterEngine *engine() const;
@@ -37,8 +44,14 @@ public:
     /// Creates the GL context if it wasn't created yet
     void createGLContext();
 
+    /// Creates the GL context for async texture uploads
+    void createTextureGLContext();
+
     /// Returns the OpenGL context
     QOpenGLContext *glContext() const;
+
+    /// Returns the OpenGL context for async texture uploads
+    QOpenGLContext *textureGlContext() const;
 
     /// Adds a new window
     FlutterWindow *addWindow();
@@ -54,10 +67,11 @@ public:
 
 private:
     QOpenGLContext *m_glContext = nullptr;
+    QOpenGLContext *m_textureGlContext = nullptr;
     _FlutterEngine *m_flutterEngine = nullptr;
     FlutterCompositor m_flutterCompositor;
     QVector<FlutterWindow *> m_windows;
 
-    const bool m_multiWindowMode = false;
+    Features m_features = {};
 };
 }

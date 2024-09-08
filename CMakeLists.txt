@@ -48,7 +48,7 @@ endif()
 
 add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp)
 
-target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL
+target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
                       $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY} EGL)
 
 target_compile_definitions(qtembedder
