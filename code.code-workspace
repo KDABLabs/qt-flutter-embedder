@@ -1,6 +1,7 @@
 {
   "folders": [
     {
+      "name": "root",
       "path": "."
     }
   ],
@@ -21,7 +22,7 @@
       "-header-insertion=never",
       "--clang-tidy=false"
     ],
-    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "cmake.copyCompileCommands": "${workspaceFolder:root}/compile_commands.json",
     "files.insertFinalNewline": true,
     "files.associations": {
       "*.code-workspace.template": "json"
@@ -38,7 +39,7 @@
         "args": [
           "examples/default_counter_app/"
         ],
-        "cwd": "${command:cmake.buildDirectory}",
+        "cwd": "${workspaceFolder:root}",
         "initCommands": [
           "settings set target.process.stop-on-exec false",
           "command script import /data/secured/home/serj/Qt/Tools/QtCreator/share/qtcreator/debugger/lldbbridge.py"
