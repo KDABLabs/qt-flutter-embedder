@@ -88,7 +88,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
 
         const bool result = embedder->glContext()->makeCurrent(&embedder->mainWindow());
         if (!result)
-            qCWarning(qtembedder) << "Failed to make context current; thread=" << QThread::currentThreadId();
+            qCWarning(qtembedder) << "Failed to make context current; thread=" << QThread::currentThreadId() << "; currentContext=" << QOpenGLContext::currentContext();
 
         if (isFirstCall) {
             // only dump noisy debug once
@@ -134,7 +134,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
 
     if (m_features & Feature::TextureGLContext) {
         config.open_gl.make_resource_current = [](void *userdata) {
-            qCInfo(qtembedder) << "make_resource_current:";
+            qCInfo(qtembedder) << "make_resource_current: thread=" << QThread::currentThreadId();
 
             auto embedder = reinterpret_cast<Embedder *>(userdata);
 
@@ -265,6 +265,8 @@ void Embedder::createGLContext()
     m_glContext = new QOpenGLContext();
     m_glContext->setFormat(surfaceFormat());
     m_glContext->setShareContext(qt_gl_global_share_context());
+    m_glContext->setObjectName("m_glContext");
+
     if (!m_glContext->create())
         qFatal("Could not create opengl context");
 }
@@ -279,6 +281,7 @@ void Embedder::createTextureGLContext()
     m_textureGlContext = new QOpenGLContext();
     m_textureGlContext->setFormat(surfaceFormat());
     m_textureGlContext->setShareContext(qt_gl_global_share_context());
+    m_textureGlContext->setObjectName("m_textureGlContext");
     if (!m_textureGlContext->create())
         qFatal("Could not create opengl context");
 }
