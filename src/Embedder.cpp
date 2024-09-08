@@ -306,31 +306,33 @@ FlutterWindow *Embedder::windowForId(FlutterViewId id) const
     return it == m_windows.cend() ? nullptr : *it;
 }
 
+#define GL_CHARPTR(X) ( const char * )glGetString(X)
+
 void Embedder::dumpGLInfo(bool printExtensions)
 {
     Q_ASSERT(m_glContext);
-    qCInfo(qtembedder) << "; format=" << m_glContext->format()
-                       << "; GL_VERSION=" << ( const char * )glGetString(GL_VERSION);
+    qCInfo(qtembedder) << "\n\ndumpGLInfo: START";
+    qCInfo(qtembedder) << "format=" << m_glContext->format()
+                       << "\nGL_VERSION=" << GL_CHARPTR(GL_VERSION)
+                       << "\nGL_RENDERER" << GL_CHARPTR(GL_RENDERER)
+                       << "\nGL_VENDOR" << GL_CHARPTR(GL_VENDOR)
+                       << "\nGL_SHADING_LANGUAGE_VERSION" << GL_CHARPTR(GL_SHADING_LANGUAGE_VERSION)
+                       << "\n";
 
     if (printExtensions) {
         int extensionCnt = 0;
         glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCnt);
 
-        const char *extensions = ( const char * )glGetString(GL_EXTENSIONS);
+        const char *extensions = GL_CHARPTR(GL_EXTENSIONS);
         Q_ASSERT(eglGetCurrentDisplay() != EGL_NO_DISPLAY);
-        const GLubyte *renderer = glGetString(GL_RENDERER);
-        const GLubyte *vendor = glGetString(GL_VENDOR);
-        const GLubyte *version = glGetString(GL_VERSION);
-        const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-        qCInfo(qtembedder) << "Renderer: " << renderer;
-        qCInfo(qtembedder) << "Vendor: " << vendor;
-        qCInfo(qtembedder) << "OpenGL Version: " << version;
-        qCInfo(qtembedder) << "GLSL Version: " << glslVersion;
+        QStringList extensionList;
+        extensionList.reserve(extensionCnt);
+        for (int i = 0; i < extensionCnt; ++i)
+            extensionList.append(( const char * )glGetStringi(GL_EXTENSIONS, i));
 
-        for (int i = 0; i < extensionCnt; ++i) {
-            qCInfo(qtembedder) << ( const char * )glGetStringi(GL_EXTENSIONS, i);
-        }
+        qCInfo(qtembedder) << extensionList.join("; ");
+        qCInfo(qtembedder) << "\ndumpGLInfo: END\n";
     }
 }
 
