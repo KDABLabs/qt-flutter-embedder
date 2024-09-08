@@ -79,15 +79,20 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         qCInfo(qtembedder) << "make_current:";
 
         auto embedder = reinterpret_cast<Embedder *>(userdata);
-
-        // only run once.
-        embedder->maybeCreateGLContext();
+        const bool isFirstCall = !embedder->glContext();
+        if (isFirstCall) {
+            // only run once.
+            embedder->createGLContext();
+        }
 
         const bool result = embedder->glContext()->makeCurrent(&embedder->mainWindow());
         if (!result)
             qCWarning(qtembedder) << "Failed to make context current" << "main thread=" << qApp->thread();
 
-        embedder->dumpGLInfo();
+        if (isFirstCall) {
+            // only dump noisy debug once
+            embedder->dumpGLInfo(/*printExtensions=*/true);
+        }
 
         return result;
     };
@@ -228,7 +233,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
     return true;
 }
 
-void Embedder::maybeCreateGLContext()
+void Embedder::createGLContext()
 {
     if (m_glContext)
         return;

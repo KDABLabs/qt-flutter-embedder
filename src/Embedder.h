@@ -35,7 +35,7 @@ public:
     FlutterWindow *windowForId(FlutterViewId) const;
 
     /// Creates the GL context if it wasn't created yet
-    void maybeCreateGLContext();
+    void createGLContext();
 
     /// Returns the OpenGL context
     QOpenGLContext *glContext() const;
