@@ -44,7 +44,7 @@ public:
     FlutterWindow *addWindow();
 
     /// Prints OpenGL format, for debug purposes
-    void dumpGLInfo();
+    void dumpGLInfo(bool printExtensions = false);
 
     /// Returns whether this embedder supports multi-window
     bool isMultiWindowMode() const;

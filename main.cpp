@@ -12,39 +12,11 @@
 #include "src/Embedder.h"
 #include "src/FlutterWindow.h"
 
-#include <iostream>
 #include <string>
 
 #include <QApplication>
 
-#include <EGL/egl.h>
-#include <GLES3/gl3.h>
-
-
 using namespace KDAB;
-
-void print_gl_info()
-{
-    int extensionCnt = 0;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCnt);
-
-    const char *extensions = ( const char * )glGetString(GL_EXTENSIONS);
-    Q_ASSERT(eglGetCurrentDisplay() != EGL_NO_DISPLAY);
-    const GLubyte *renderer = glGetString(GL_RENDERER); // Get renderer string
-    const GLubyte *vendor = glGetString(GL_VENDOR); // Get vendor string
-    const GLubyte *version = glGetString(GL_VERSION); // Version as a string
-    const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION); // GLSL version string
-
-    std::cout << "Renderer: " << renderer << std::endl;
-    std::cout << "Vendor: " << vendor << std::endl;
-    std::cout << "OpenGL Version: " << version << std::endl;
-    std::cout << "GLSL Version: " << glslVersion << std::endl;
-
-    for (int i = 0; i < extensionCnt; ++i) {
-        const char *ext = ( const char * )glGetStringi(GL_EXTENSIONS, i);
-        qDebug() << ext;
-    }
-}
 
 int main(int argc, char **argv)
 {

@@ -23,6 +23,11 @@
 #include <iostream>
 #include <filesystem>
 
+// TODO: In the future we won't need to link to GL directly
+// only in a developer build where we call gl functions directly
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
+
 Q_LOGGING_CATEGORY(qtembedder, "qtembedder")
 
 using namespace KDAB;
@@ -300,11 +305,32 @@ FlutterWindow *Embedder::windowForId(FlutterViewId id) const
     return it == m_windows.cend() ? nullptr : *it;
 }
 
-void Embedder::dumpGLInfo()
+void Embedder::dumpGLInfo(bool printExtensions)
 {
     Q_ASSERT(m_glContext);
     qCInfo(qtembedder) << "; format=" << m_glContext->format()
                        << "; GL_VERSION=" << ( const char * )glGetString(GL_VERSION);
+
+    if (printExtensions) {
+        int extensionCnt = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCnt);
+
+        const char *extensions = ( const char * )glGetString(GL_EXTENSIONS);
+        Q_ASSERT(eglGetCurrentDisplay() != EGL_NO_DISPLAY);
+        const GLubyte *renderer = glGetString(GL_RENDERER);
+        const GLubyte *vendor = glGetString(GL_VENDOR);
+        const GLubyte *version = glGetString(GL_VERSION);
+        const GLubyte *glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+        qCInfo(qtembedder) << "Renderer: " << renderer;
+        qCInfo(qtembedder) << "Vendor: " << vendor;
+        qCInfo(qtembedder) << "OpenGL Version: " << version;
+        qCInfo(qtembedder) << "GLSL Version: " << glslVersion;
+
+        for (int i = 0; i < extensionCnt; ++i) {
+            qCInfo(qtembedder) << ( const char * )glGetStringi(GL_EXTENSIONS, i);
+        }
+    }
 }
 
 bool Embedder::isMultiWindowMode() const
