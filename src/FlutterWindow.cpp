@@ -24,7 +24,7 @@ FlutterWindow::FlutterWindow(Embedder &embedder)
     : m_embedder(embedder)
     , m_id(s_nextId++)
 {
-    setFormat(Embedder::surfaceFormat());
+    setFormat(embedder.surfaceFormat());
     setSurfaceType(QWindow::OpenGLSurface);
 }
 

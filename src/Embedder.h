@@ -27,7 +27,9 @@ public:
     enum class Feature {
         None,
         MultiWindow = 1,
-        TextureGLContext = 2
+        TextureGLContext = 2,
+        GLES = 4, /// Explicitly request GLES instead of the default
+        GL = 8, /// Explicitly request GL instead of the default
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
@@ -67,8 +69,12 @@ public:
     /// Returns whether this embedder supports multi-window
     bool isMultiWindowMode() const;
 
+    //// Returns whether this embedder is running GLES instead of GL
+    bool isGLES() const;
+
     /// Our desired surface format
-    static QSurfaceFormat surfaceFormat();
+    QSurfaceFormat surfaceFormat() const;
+    static QSurfaceFormat surfaceFormat(Features);
 
 private:
     QOpenGLContext *m_glContext = nullptr;

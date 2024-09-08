@@ -143,7 +143,6 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
             qCInfo(qtembedder) << "make_resource_current: thread=" << QThread::currentThreadId();
 
             auto embedder = reinterpret_cast<Embedder *>(userdata);
-
             if (!embedder->textureGlContext())
                 embedder->createTextureGLContext();
 
@@ -295,7 +294,13 @@ void Embedder::createTextureGLContext()
         qFatal("Could not create opengl context");
 }
 
-QSurfaceFormat Embedder::surfaceFormat()
+QSurfaceFormat Embedder::surfaceFormat() const
+{
+    return Embedder::surfaceFormat(m_features);
+}
+
+/** static*/
+QSurfaceFormat Embedder::surfaceFormat(Features features)
 {
     QSurfaceFormat fmt;
     // fmt.setColorSpace(QColorSpace::SRgb);
@@ -303,6 +308,11 @@ QSurfaceFormat Embedder::surfaceFormat()
     fmt.setStencilBufferSize(8);
     fmt.setAlphaBufferSize(8);
     fmt.setSamples(8);
+
+    if (features & Feature::GLES)
+        fmt.setRenderableType(QSurfaceFormat::OpenGLES);
+    else if (features & Feature::GL)
+        fmt.setRenderableType(QSurfaceFormat::OpenGL);
 
     return fmt;
 }
@@ -400,4 +410,9 @@ void Embedder::dumpGLInfo(bool printExtensions)
 bool Embedder::isMultiWindowMode() const
 {
     return m_features & Feature::MultiWindow;
+}
+
+bool Embedder::isGLES() const
+{
+    return m_features & Feature::GLES;
 }
