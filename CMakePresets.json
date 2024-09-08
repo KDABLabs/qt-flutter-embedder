@@ -9,6 +9,10 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "environment": {
+        "CXX": "clang++",
+        "CC": "clang"
       }
     },
     {
@@ -20,6 +24,10 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "ENABLE_ASAN": "ON"
+      },
+      "environment": {
+        "CXX": "clang++",
+        "CC": "clang"
       }
     },
     {
