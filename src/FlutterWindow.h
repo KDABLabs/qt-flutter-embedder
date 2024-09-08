@@ -24,6 +24,8 @@ class FlutterWindow : public QWindow
 public:
     explicit FlutterWindow(Embedder &);
 
+    /// Returns the window id inside Flutter
+    /// ids are sequential, the first window has id 0
     FlutterViewId id() const;
 
 protected:
