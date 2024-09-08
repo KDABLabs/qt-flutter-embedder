@@ -291,8 +291,8 @@ FlutterWindow *Embedder::addWindow()
         return nullptr;
     }
 
-    window->setTitle("SECOND");
     m_windows << window;
+    window->setTitle(QString("Window #%1").arg(m_windows.size()));
 
     return window;
 }
