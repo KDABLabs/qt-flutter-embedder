@@ -338,13 +338,26 @@ QOffscreenSurface *Embedder::offscreenSurfaceForTextureUploads() const
 FlutterWindow *Embedder::addWindow()
 {
     auto window = new FlutterWindow(*this);
+    window->resize(600, 600);
+
+    FlutterWindowMetricsEvent metrics = {};
+    metrics.struct_size = sizeof(metrics);
+    metrics.height = 600;
+    metrics.width = 600;
+    metrics.left = 0;
+    metrics.top = 0;
+    metrics.pixel_ratio = window->devicePixelRatio();
+    metrics.view_id = window->id();
 
     FlutterAddViewInfo info;
     info.struct_size = sizeof(info);
     info.view_id = window->id();
     info.user_data = window;
+    info.view_metrics = &metrics;
+
 
     info.add_view_callback = [](const FlutterAddViewResult *result) {
+        qCInfo(qtembedder) << "Embedder::addWindow: added=" << result->added;
         if (result->added) {
             auto window = reinterpret_cast<FlutterWindow *>(result->user_data);
 
