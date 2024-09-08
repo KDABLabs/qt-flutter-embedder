@@ -52,8 +52,9 @@ int main(int argc, char **argv)
 
     QApplication app(argc, argv);
     app.setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity); // TODO
+    app.setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    Embedder embedder;
+    Embedder embedder(/*multiWindowMode=*/app.arguments().contains("-m"));
 
     const QString projectPath = app.arguments()[1];
     const auto icuPath = std::string(FLUTTER_ICUDTL_DIR) + std::string("/icudtl.dat");
@@ -61,15 +62,6 @@ int main(int argc, char **argv)
     if (!embedder.initFlutter(argc, argv, projectPath.toStdString(), icuPath)) {
         return -1;
     }
-
-    // embedder.addWindow();
-
-    // window.createContext();
-    // QTimer::singleShot(1000, [] {
-    //     s_window->m_context->makeCurrent(s_window);
-    //     Q_ASSERT(QOpenGLContext::currentContext()->isOpenGLES());
-    //     qDebug() << s_window->m_context->format();
-    // });
 
     return app.exec();
 }

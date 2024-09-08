@@ -11,14 +11,19 @@
 
 #include "Embedder.h"
 #include "FlutterWindow.h"
+#include "flutter_embedder.h"
 
 #include <QOpenGLContext>
 #include <QGuiApplication>
 #include <QThread>
 #include <QDebug>
+#include <QLoggingCategory>
+#include <QColorSpace>
 
 #include <iostream>
 #include <filesystem>
+
+Q_LOGGING_CATEGORY(qtembedder, "qtembedder")
 
 using namespace KDAB;
 namespace fs = std::filesystem;
@@ -31,7 +36,8 @@ static bool isAOT()
     return false;
 }
 
-Embedder::Embedder()
+Embedder::Embedder(bool multiWindowMode)
+    : m_multiWindowMode(multiWindowMode)
 {
     auto window = new FlutterWindow(*this);
     window->show();
@@ -70,41 +76,49 @@ bool Embedder::initFlutter(int argc, char **argv, const std::string &project_pat
         std::abort();
     }
 
-    FlutterWindow *window = &mainWindow();
-
     FlutterRendererConfig config = {};
     config.type = kOpenGL;
     config.open_gl.struct_size = sizeof(config.open_gl);
     config.open_gl.make_current = [](void *userdata) -> bool {
+        qCInfo(qtembedder) << "make_current:";
+
         auto embedder = reinterpret_cast<Embedder *>(userdata);
+
+        // only run once.
         embedder->maybeCreateGLContext();
 
         const bool result = embedder->glContext()->makeCurrent(&embedder->mainWindow());
         if (!result)
-            qWarning() << "Failed to make context current" << "main thread=" << qApp->thread();
+            qCWarning(qtembedder) << "Failed to make context current" << "main thread=" << qApp->thread();
+
+        embedder->dumpGLInfo();
 
         return result;
     };
+
     config.open_gl.clear_current = [](void *) -> bool {
-        // qDebug() << "clear_current: ";
+        qCInfo(qtembedder) << "clear_current:";
         QOpenGLContext::currentContext()->doneCurrent();
         return true;
     };
 
     config.open_gl.present_with_info = [](void *userdata, const FlutterPresentInfo *) -> bool {
-        // qDebug() << "present2: ";
+        qCInfo(qtembedder) << "present_with_info:";
+
         auto embedder = reinterpret_cast<Embedder *>(userdata);
+        Q_ASSERT(!embedder->isMultiWindowMode());
+
         auto &window = embedder->mainWindow();
         embedder->glContext()->swapBuffers(&window);
         return true;
     };
 
     config.open_gl.fbo_callback = [](void *) -> uint32_t {
-        // qDebug() << "fbo_callback: " << 0;
-        return 0; // FBO0
+        qCInfo(qtembedder) << "fbo_callback:";
+        return 0;
     };
+
     config.open_gl.gl_proc_resolver = [](void *userdata, const char *name) -> void * {
-        // qDebug() << "proc_resolver: " << "; name=" << name << "\n";
         auto embedder = reinterpret_cast<Embedder *>(userdata);
         return reinterpret_cast<void *>(embedder->glContext()->getProcAddress(name));
     };
@@ -126,13 +140,80 @@ bool Embedder::initFlutter(int argc, char **argv, const std::string &project_pat
         }
     }
 
+    m_flutterCompositor = {};
+    // In multiwindow mode we need a compositor
+    if (m_multiWindowMode) {
+        m_flutterCompositor.struct_size = sizeof(m_flutterCompositor);
+        m_flutterCompositor.user_data = this;
+        m_flutterCompositor.present_view_callback = [](const FlutterPresentViewInfo *info) {
+            // TODO
+            qCInfo(qtembedder) << "compositor.present_view_callback:";
+            auto embedder = reinterpret_cast<Embedder *>(info->user_data);
+            auto &window = embedder->mainWindow();
+            embedder->glContext()->swapBuffers(&window);
+            return true;
+        };
+
+        m_flutterCompositor.collect_backing_store_callback = [](const FlutterBackingStore *, void *) {
+            qCInfo(qtembedder) << "compositor.collect_backing_store_callback:";
+            return true;
+        };
+
+        m_flutterCompositor.create_backing_store_callback = [](const FlutterBackingStoreConfig *config,
+                                                               FlutterBackingStore *backing_store_out,
+                                                               void *user_data) {
+            qCInfo(qtembedder) << "create_backing_store: view=" << config->view_id << "; size=" << config->size.width
+                               << "x" << config->size.height;
+
+            auto embedder = reinterpret_cast<Embedder *>(user_data);
+            auto window = embedder->windowForId(config->view_id);
+            Q_ASSERT(window); // TODO: Create it and actually assert if it existed already
+
+            FlutterOpenGLSurface glSurface;
+            glSurface.struct_size = sizeof(FlutterOpenGLSurface);
+            glSurface.user_data = window;
+            glSurface.make_current_callback = [](void *user_data, bool *state_changed) {
+                *state_changed = false;
+                auto window = reinterpret_cast<FlutterWindow *>(user_data);
+                qCInfo(qtembedder) << "glSurface.make_current_callback id=" << window->id();
+                return true;
+            };
+
+            glSurface.clear_current_callback = [](void *user_data, bool *state_changed) {
+                *state_changed = false;
+                auto window = reinterpret_cast<FlutterWindow *>(user_data);
+                qCInfo(qtembedder) << "glSurface.clear_current_callback id=" << window->id();
+                return true;
+            };
+
+            glSurface.destruction_callback = [](void *user_data) {
+                auto window = reinterpret_cast<FlutterWindow *>(user_data);
+                qCInfo(qtembedder) << "glSurface.destruction_callback id=" << window->id();
+            };
+
+            FlutterOpenGLBackingStore glStore;
+            glStore.type = kFlutterOpenGLTargetTypeSurface;
+            glStore.surface = glSurface;
+
+            backing_store_out->struct_size = sizeof(FlutterBackingStore);
+            backing_store_out->type = kFlutterBackingStoreTypeOpenGL;
+            backing_store_out->user_data = window;
+            // backing_store_out->did_update TODO
+            backing_store_out->open_gl = glStore;
+
+            return true;
+        };
+
+        m_flutterCompositor.avoid_backing_store_cache = true;
+    }
+
     FlutterProjectArgs args = {
         .struct_size = sizeof(FlutterProjectArgs),
         .assets_path = assets_path.c_str(),
-        .icu_data_path =
-            icudtl_path.c_str(), // Find this in your bin/cache directory.
+        .icu_data_path = icudtl_path.c_str(),
         .command_line_argc = argc,
         .command_line_argv = argv,
+        .compositor = m_multiWindowMode ? &m_flutterCompositor : nullptr,
         .aot_data = aot_data,
         .dart_entrypoint_argc = argc,
         .dart_entrypoint_argv = argv,
@@ -160,6 +241,7 @@ void Embedder::maybeCreateGLContext()
 QSurfaceFormat Embedder::surfaceFormat()
 {
     QSurfaceFormat fmt;
+    fmt.setColorSpace(QColorSpace::SRgb);
     fmt.setDepthBufferSize(8);
     fmt.setStencilBufferSize(8);
     fmt.setAlphaBufferSize(8);
@@ -192,13 +274,13 @@ FlutterWindow *Embedder::addWindow()
             });
 
         } else {
-            qDebug() << "Embedder: Could not add view!";
+            qCWarning(qtembedder) << "Embedder: Could not add view!";
         }
     };
 
     auto result = FlutterEngineAddView(m_flutterEngine, &info);
     if (result != kSuccess) {
-        qWarning() << "Embedder: Error adding view";
+        qCWarning(qtembedder) << "Embedder: Error adding view";
         delete window;
         return nullptr;
     }
@@ -207,4 +289,25 @@ FlutterWindow *Embedder::addWindow()
     m_windows << window;
 
     return window;
+}
+
+FlutterWindow *Embedder::windowForId(FlutterViewId id) const
+{
+    auto it = std::find_if(m_windows.cbegin(), m_windows.cend(), [id](auto w) {
+        return w->id() == id;
+    });
+
+    return it == m_windows.cend() ? nullptr : *it;
+}
+
+void Embedder::dumpGLInfo()
+{
+    Q_ASSERT(m_glContext);
+    qCInfo(qtembedder) << "; format=" << m_glContext->format()
+                       << "; GL_VERSION=" << ( const char * )glGetString(GL_VERSION);
+}
+
+bool Embedder::isMultiWindowMode() const
+{
+    return m_multiWindowMode;
 }
