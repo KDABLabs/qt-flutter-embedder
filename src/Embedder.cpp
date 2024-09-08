@@ -303,11 +303,14 @@ QSurfaceFormat Embedder::surfaceFormat() const
 QSurfaceFormat Embedder::surfaceFormat(Features features)
 {
     QSurfaceFormat fmt;
-    // fmt.setColorSpace(QColorSpace::SRgb);
     fmt.setDepthBufferSize(8);
     fmt.setStencilBufferSize(8);
     fmt.setAlphaBufferSize(8);
     fmt.setSamples(8);
+
+    // stuff we probably don't need:
+    // fmt.setColorSpace(QColorSpace::SRgb);
+    // fmt.setProfile(QSurfaceFormat::CoreProfile);
 
     if (features & Feature::GLES)
         fmt.setRenderableType(QSurfaceFormat::OpenGLES);
