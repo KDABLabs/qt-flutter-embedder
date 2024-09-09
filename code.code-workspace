@@ -38,6 +38,7 @@
         "program": "${command:cmake.launchTargetPath}",
         "args": [
           "-m",
+          "-e",
           "examples/default_counter_app/"
         ],
         "cwd": "${workspaceFolder:root}",
