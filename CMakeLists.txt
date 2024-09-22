@@ -59,9 +59,7 @@ add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp)
 target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
                       $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY})
 
-if (APPLE)
-  target_compile_definitions(qtembedder PRIVATE NO_LINK_EGL)
-else()
+if (NOT APPLE)
   target_link_libraries(qtembedder EGL)
 endif()
 

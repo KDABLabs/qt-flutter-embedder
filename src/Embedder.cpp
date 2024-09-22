@@ -25,9 +25,7 @@
 #include <iostream>
 #include <filesystem>
 
-// TODO: In the future we won't need to link to GL directly
-// only in a developer build where we call gl functions directly
-#ifndef NO_LINK_EGL
+#ifdef QT_EMBEDDER_LINKS_TO_GL
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #endif
@@ -420,7 +418,7 @@ FlutterWindow *Embedder::windowForId(FlutterViewId id) const
 
 void Embedder::dumpGLInfo(bool printExtensions)
 {
-#ifndef NO_LINK_EGL
+#ifdef QT_EMBEDDER_LINKS_TO_GL
     Q_ASSERT(m_glContext);
     qCInfo(qtembedder) << "\n\ndumpGLInfo: START";
     qCInfo(qtembedder) << "format=" << m_glContext->format()

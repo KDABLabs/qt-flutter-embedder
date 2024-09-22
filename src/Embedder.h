@@ -19,6 +19,13 @@ class QOpenGLContext;
 class QSurfaceFormat;
 class QOffscreenSurface;
 
+#ifdef Q_OS_LINUX
+// TODO: Don't link to GL directly
+#define QT_EMBEDDER_LINKS_TO_GL
+
+#define QT_EMBEDDER_GL
+#endif
+
 namespace KDAB {
 class FlutterWindow;
 class Embedder
