@@ -18,20 +18,28 @@ if(NOT DEFINED ENV{FLUTTER_ENGINE_FOLDER})
   message(FATAL_ERROR "Point env var FLUTTER_ENGINE_FOLDER to engine folder")
 endif()
 
+
+
 if(MSVC)
-  set(FLUTTER_ENGINE_LIBRARY flutter_engine.dll.lib)
+  set(FLUTTER_ENGINE_LIBRARY flutter_engine.lib)
 else()
   if(EXISTS "$ENV{FLUTTER_ENGINE_FOLDER}/rel/")
     if(QT_EMBEDDER_AOT)
-      set(FLUTTER_ENGINE_LIBRARY rel/libflutter_engine.so)
+      set(FLUTTER_ENGINE_LIBRARY rel/libflutter_engine.${CMAKE_SHARED_LIBRARY_SUFFIX})
     else()
-      set(FLUTTER_ENGINE_LIBRARY dbg_unopt/libflutter_engine.so)
+      set(FLUTTER_ENGINE_LIBRARY dbg_unopt/libflutter_engine.${CMAKE_SHARED_LIBRARY_SUFFIX})
     endif()
     set(FLUTTER_ENGINE_INCLUDE_DIR $ENV{FLUTTER_ENGINE_FOLDER})
   else()
-    set(FLUTTER_ENGINE_LIBRARY ../out/host_debug_unopt/libflutter_engine.so)
+    if(APPLE)
+      set(BUILD_FOLDER_NAME host_debug_unopt_arm64)
+    else()
+      set(BUILD_FOLDER_NAME host_debug_unopt)
+    endif()
+
+    set(FLUTTER_ENGINE_LIBRARY ../out/${BUILD_FOLDER_NAME}/libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX})
     set(FLUTTER_ENGINE_INCLUDE_DIR
-        $ENV{FLUTTER_ENGINE_FOLDER}/../out/host_debug_unopt)
+        $ENV{FLUTTER_ENGINE_FOLDER}/../out/${BUILD_FOLDER_NAME})
   endif()
 endif()
 
@@ -49,7 +57,13 @@ endif()
 add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp)
 
 target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
-                      $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY} EGL)
+                      $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY})
+
+if (APPLE)
+  target_compile_definitions(qtembedder PRIVATE NO_LINK_EGL)
+else()
+  target_link_libraries(qtembedder EGL)
+endif()
 
 target_compile_definitions(qtembedder
                            PRIVATE FLUTTER_ICUDTL_DIR="${CMAKE_BINARY_DIR}")
