@@ -205,7 +205,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
             auto window = embedder->windowForId(config->view_id);
             Q_ASSERT(window); // TODO: Create it and actually assert if it existed already
 
-            FlutterOpenGLSurface glSurface;
+            FlutterOpenGLSurface glSurface = {};
             glSurface.struct_size = sizeof(FlutterOpenGLSurface);
             glSurface.user_data = window;
             glSurface.make_current_callback = [](void *user_data, bool *state_changed) {
@@ -248,7 +248,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
             return true;
         };
 
-        m_flutterCompositor.avoid_backing_store_cache = true;
+        m_flutterCompositor.avoid_backing_store_cache = false;
     }
 
     FlutterProjectArgs args = {
