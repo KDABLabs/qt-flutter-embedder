@@ -37,6 +37,7 @@ public:
         TextureGLContext = 2,
         GLES = 4, /// Explicitly request GLES instead of the default
         GL = 8, /// Explicitly request GL instead of the default
+        Metal = 16 /// Metal. Only available on macOS
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
