@@ -1,9 +1,13 @@
 if [[ "$(uname)" == "Darwin" ]]; then
-    FLUTTER_ARCH="_arm64"
     FLUTTER_HOST="macos"
 else
-    FLUTTER_ARCH=""
     FLUTTER_HOST="linux"
+fi
+
+if uname -m | grep "arm64"; then
+    FLUTTER_ARCH="_arm64"
+else
+    FLUTTER_ARCH=""
 fi
 
 cd examples/default_counter_app && \
