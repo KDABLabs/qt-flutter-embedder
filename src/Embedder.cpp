@@ -20,10 +20,12 @@
 #include <QLoggingCategory>
 #include <QColorSpace>
 #include <QOffscreenSurface>
+#include <QTimer>
 #include <QtGui/private/qopenglcontext_p.h>
 
 #include <iostream>
 #include <filesystem>
+#include <print>
 
 #ifdef QT_EMBEDDER_LINKS_TO_GL
 #include <EGL/egl.h>
@@ -252,16 +254,69 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         m_flutterCompositor.avoid_backing_store_cache = false;
     }
 
+    FlutterPlatformMessageCallback platMessageCallback = [](const FlutterPlatformMessage * /* message*/,
+                                                            void *user_data) {
+        qWarning() << "platMessageCallback";
+        auto embedder = reinterpret_cast<Embedder *>(user_data);
+        Q_UNUSED(embedder);
+    };
+
+    FlutterChannelUpdateCallback channelUpdateCallback = [](const FlutterChannelUpdate * /* channel update */,
+                                                            void *user_data) {
+        // TODO
+        auto embedder = reinterpret_cast<Embedder *>(user_data);
+        Q_UNUSED(embedder);
+        qWarning() << "channelUpdateCallback";
+    };
+
+    FlutterTaskRunnerDescription platformTaskRunner = {};
+    platformTaskRunner.struct_size = sizeof(FlutterTaskRunnerDescription);
+    platformTaskRunner.user_data = this;
+
+    platformTaskRunner.runs_task_on_current_thread_callback = [](void *) {
+        // Return whether we're on the platform thread
+        return qApp->thread() == QThread::currentThread();
+    };
+
+    platformTaskRunner.post_task_callback = [](FlutterTask task,
+                                               uint64_t nanos,
+                                               void *user_data) {
+        const uint64_t cur = FlutterEngineGetCurrentTime();
+        const uint64_t deltaNanos = nanos > cur ? (nanos - cur) : 0;
+
+        std::chrono::milliseconds duration(deltaNanos / 1000000);
+        auto embedder = reinterpret_cast<Embedder *>(user_data);
+
+        // Schedule for the main thread:
+        QTimer::singleShot(duration, qApp, [embedder, task] {
+            auto result = FlutterEngineRunTask(embedder->engine(), &task);
+            if (result == kSuccess) {
+                qCDebug(qtembedder) << "post_task_callback: Ran task";
+            } else {
+                qCWarning(qtembedder) << "post_task_callback: Failed to run task: " << result;
+            }
+        });
+    };
+
+    platformTaskRunner.identifier = 0;
+
+    FlutterCustomTaskRunners customTaskRunners = {};
+    customTaskRunners.struct_size = sizeof(FlutterCustomTaskRunners);
+    customTaskRunners.platform_task_runner = &platformTaskRunner;
+
     FlutterProjectArgs args = {
         .struct_size = sizeof(FlutterProjectArgs),
         .assets_path = assets_path.c_str(),
         .icu_data_path = icudtl_path.c_str(),
         .command_line_argc = argc,
         .command_line_argv = argv,
+        .platform_message_callback = platMessageCallback,
+        .custom_task_runners = &customTaskRunners,
         .compositor = isMultiWindowMode() ? &m_flutterCompositor : nullptr,
         .aot_data = aot_data,
         .dart_entrypoint_argc = argc,
         .dart_entrypoint_argv = argv,
+        .channel_update_callback = channelUpdateCallback
     };
 
     FlutterEngineResult result =
