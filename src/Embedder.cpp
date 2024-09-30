@@ -208,6 +208,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
             FlutterOpenGLSurface glSurface = {};
             glSurface.struct_size = sizeof(FlutterOpenGLSurface);
             glSurface.user_data = window;
+            glSurface.format = GL_RGBA8;
             glSurface.make_current_callback = [](void *user_data, bool *state_changed) {
                 *state_changed = false;
                 auto window = reinterpret_cast<FlutterWindow *>(user_data);
