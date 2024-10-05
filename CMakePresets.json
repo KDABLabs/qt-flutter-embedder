@@ -8,7 +8,8 @@
       "binaryDir": "${sourceDir}/build-dev",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "DEVELOPER_BUILD": "ON"
       },
       "environment": {
         "CXX": "clang++",
@@ -18,16 +19,10 @@
     {
       "name": "dev-asan",
       "description": "dev-asan",
-      "generator": "Ninja",
+      "inherits": "dev",
       "binaryDir": "${sourceDir}/build-dev-asan",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "ENABLE_ASAN": "ON"
-      },
-      "environment": {
-        "CXX": "clang++",
-        "CC": "clang"
       }
     },
     {

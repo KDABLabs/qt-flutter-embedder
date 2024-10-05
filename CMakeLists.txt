@@ -8,6 +8,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(qtwidgets_basic)
 
+option(DEVELOPER_BUILD "Enable DEVELOPER_BUILD (tests, helper code, etc)" OFF)
+
 set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_AUTOMOC ON)
@@ -50,8 +52,10 @@ endif()
 message(
   "FLUTTER_ENGINE_LIBRARY=$ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY}"
 )
-message(${FLUTTER_ENGINE_INCLUDE_DIR})
-include_directories(${FLUTTER_ENGINE_INCLUDE_DIR})
+
+include_directories(
+  ${FLUTTER_ENGINE_INCLUDE_DIR}
+  "$ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/include")
 
 if(ENABLE_ASAN)
   add_compile_options(-fsanitize=address -fsanitize=undefined)
@@ -69,6 +73,10 @@ endif()
 
 target_compile_definitions(qtembedder
                            PRIVATE FLUTTER_ICUDTL_DIR="${CMAKE_BINARY_DIR}")
+
+if(DEVELOPER_BUILD)
+  target_compile_definitions(qtembedder PRIVATE DEVELOPER_BUILD)
+endif()
 
 # ICU
 find_program(FLUTTER_EXE flutter REQUIRED)
