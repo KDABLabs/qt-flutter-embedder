@@ -7,6 +7,10 @@
 #include <atomic>
 #include <memory>
 
+namespace flutter {
+class BinaryMessengerImpl;
+}
+
 struct FlutterDesktopMessenger;
 
 typedef struct _FlutterEngineAOTData *FlutterEngineAOTData;
@@ -63,6 +67,8 @@ struct FlutterDesktopEngineState
     // Message dispatch manager for messages from the Flutter engine.
     std::unique_ptr<flutter::IncomingMessageDispatcher>
         message_dispatcher;
+
+    flutter::BinaryMessengerImpl *binaryMessenger;
 
     // // The plugin registrar handle given to API clients.
     // std::unique_ptr<FlutterDesktopPluginRegistrar> plugin_registrar;
@@ -142,17 +148,16 @@ private:
     std::mutex mutex_;
 };
 
-namespace kdab {
-static FlutterDesktopMessengerRef FlutterDesktopMessengerAddRef(
-    FlutterDesktopMessengerRef messenger)
-{
-    messenger->AddRef();
-    return messenger;
-}
 
-void FlutterDesktopMessengerSendResponse(
-    FlutterDesktopMessengerRef,
-    const FlutterDesktopMessageResponseHandle *,
-    const uint8_t *,
-    size_t);
+// Converts a FlutterPlatformMessage to an equivalent FlutterDesktopMessage.
+inline FlutterDesktopMessage ConvertToDesktopMessage(
+    const FlutterPlatformMessage &engine_message)
+{
+    FlutterDesktopMessage message = {};
+    message.struct_size = sizeof(message);
+    message.channel = engine_message.channel;
+    message.message = engine_message.message;
+    message.message_size = engine_message.message_size;
+    message.response_handle = engine_message.response_handle;
+    return message;
 }

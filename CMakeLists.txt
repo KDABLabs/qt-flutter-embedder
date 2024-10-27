@@ -53,19 +53,39 @@ message(
   "FLUTTER_ENGINE_LIBRARY=$ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY}"
 )
 
-include_directories(
-  ${FLUTTER_ENGINE_INCLUDE_DIR}
-  "$ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/include")
+include_directories(${FLUTTER_ENGINE_INCLUDE_DIR})
 
 if(ENABLE_ASAN)
   add_compile_options(-fsanitize=address -fsanitize=undefined)
   add_link_options(-fsanitize=address -fsanitize=undefined)
 endif()
 
-add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp)
+add_library(
+  flutter_common_client_wrapper STATIC
+  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/plugin_registrar.cc
+  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/core_implementations.cc
+  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/standard_codec.cc
+  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/engine_method_result.cc
+  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/engine_method_result.cc
+  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/incoming_message_dispatcher.cc
+)
 
-target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
-                      $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY})
+target_include_directories(
+  flutter_common_client_wrapper
+  PUBLIC
+    "$ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/public"
+    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common
+    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper
+    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/include/
+    "$ENV{FLUTTER_ENGINE_FOLDER}/..")
+
+add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp
+                          src/3rdparty/flutter/glfw_shell.cpp)
+
+target_link_libraries(
+  qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
+  $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY}
+  flutter_common_client_wrapper)
 
 if(NOT APPLE)
   target_link_libraries(qtembedder EGL)

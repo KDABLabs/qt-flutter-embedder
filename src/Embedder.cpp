@@ -26,11 +26,16 @@
 #include <iostream>
 #include <filesystem>
 #include <print>
+#include <sys/types.h>
 
 #ifdef QT_EMBEDDER_LINKS_TO_GL
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #endif
+
+// from flutter engine repo
+#include "binary_messenger_impl.h"
+#include "flutter_messenger.h"
 
 Q_LOGGING_CATEGORY(qtembedder, "qtembedder")
 
@@ -52,6 +57,16 @@ Embedder::Embedder(Features features)
     window->show();
     window->resize(1000, 1000);
     m_windows << window;
+
+    m_state.messenger = FlutterDesktopMessengerReferenceOwner(
+        FlutterDesktopMessengerAddRef(new FlutterDesktopMessenger()),
+        &FlutterDesktopMessengerRelease);
+
+    m_state.messenger->SetEngine(&m_state);
+    m_state.message_dispatcher = std::make_unique<flutter::IncomingMessageDispatcher>(
+        m_state.messenger.get());
+
+    m_state.binaryMessenger = new flutter::BinaryMessengerImpl(m_state.messenger.get());
 }
 
 Embedder::~Embedder()
@@ -254,11 +269,14 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         m_flutterCompositor.avoid_backing_store_cache = false;
     }
 
-    FlutterPlatformMessageCallback platMessageCallback = [](const FlutterPlatformMessage * /* message*/,
+    FlutterPlatformMessageCallback platMessageCallback = [](const FlutterPlatformMessage *message,
                                                             void *user_data) {
-        qWarning() << "platMessageCallback";
+        qCDebug(qtembedder()) << "platMessageCallback channel=" << message->channel << "; size=" << message->message_size;
         auto embedder = reinterpret_cast<Embedder *>(user_data);
         Q_UNUSED(embedder);
+
+        FlutterDesktopMessage dmessage = ConvertToDesktopMessage(*message);
+        embedder->m_state.message_dispatcher->HandleMessage(dmessage, [] {}, [] {});
     };
 
     FlutterChannelUpdateCallback channelUpdateCallback = [](const FlutterChannelUpdate * /* channel update */,
@@ -322,6 +340,8 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
     FlutterEngineResult result =
         FlutterEngineRun(FLUTTER_ENGINE_VERSION, &config,
                          &args, this, &m_flutterEngine);
+
+    m_state.flutter_engine = m_flutterEngine;
 
 
     if (result != kSuccess) {
@@ -510,4 +530,9 @@ bool Embedder::isMultiWindowMode() const
 bool Embedder::isGLES() const
 {
     return m_features & Feature::GLES;
+}
+
+flutter::BinaryMessenger *Embedder::binaryMessenger() const
+{
+    return m_state.binaryMessenger;
 }

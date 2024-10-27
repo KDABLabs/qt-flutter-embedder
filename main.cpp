@@ -16,7 +16,10 @@
 
 #include <QApplication>
 #include <QThread>
+#include <QDebug>
 #include <QCommandLineParser>
+
+#include "flutter/encodable_value.h"
 
 using namespace KDAB;
 
@@ -46,6 +49,29 @@ static Embedder::Features defaultFeatures(int argc, char **argv)
 
     return features;
 }
+
+#ifdef DEVELOPER_BUILD
+// for testing
+#include <flutter/event_channel.h>
+#include <flutter/event_sink.h>
+#include <flutter/event_stream_handler_functions.h>
+#include <flutter/method_channel.h>
+#include <flutter/standard_method_codec.h>
+void registerDummyMethodChannel(Embedder &embedder)
+{
+    flutter::MethodChannel<> channel(
+        embedder.binaryMessenger(), "qtembedder.kdab.com/testPlatformChannel",
+        &flutter::StandardMethodCodec::GetInstance());
+    channel.SetMethodCallHandler(
+        [](const flutter::MethodCall<> &call,
+           std::unique_ptr<flutter::MethodResult<>> result) {
+            qWarning() << "method call handler!";
+            result->Success(flutter::EncodableValue(42));
+            // result->Error("UNAVAILABLE", "Not available.");
+        });
+}
+
+#endif
 
 int main(int argc, char **argv)
 {
@@ -95,6 +121,7 @@ int main(int argc, char **argv)
         features |= Embedder::Feature::GL;
 
     Embedder embedder(features);
+    registerDummyMethodChannel(embedder);
 
     const auto icuPath = std::string(FLUTTER_ICUDTL_DIR) + std::string("/icudtl.dat");
 

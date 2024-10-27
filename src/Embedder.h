@@ -14,6 +14,7 @@
 #include <QVector>
 
 #include <flutter_embedder.h>
+#include "3rdparty/flutter/glfw_shell.h"
 
 class QOpenGLContext;
 class QSurfaceFormat;
@@ -25,6 +26,14 @@ class QOffscreenSurface;
 
 #define QT_EMBEDDER_GL
 #endif
+
+using FlutterDesktopMessengerReferenceOwner =
+    std::unique_ptr<FlutterDesktopMessenger,
+                    decltype(&FlutterDesktopMessengerRelease)>;
+
+namespace flutter {
+class BinaryMessenger;
+}
 
 namespace KDAB {
 class FlutterWindow;
@@ -84,6 +93,8 @@ public:
     QSurfaceFormat surfaceFormat() const;
     static QSurfaceFormat surfaceFormat(Features);
 
+    flutter::BinaryMessenger *binaryMessenger() const;
+
 private:
     QOpenGLContext *m_glContext = nullptr;
     QOpenGLContext *m_textureGlContext = nullptr;
@@ -93,5 +104,8 @@ private:
     QVector<FlutterWindow *> m_windows;
 
     Features m_features = {};
+
+public:
+    FlutterDesktopEngineState m_state;
 };
 }
