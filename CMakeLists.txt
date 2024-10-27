@@ -74,6 +74,7 @@ target_include_directories(
   flutter_common_client_wrapper
   PUBLIC
     "$ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/public"
+    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/embedder/
     $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common
     $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper
     $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/include/

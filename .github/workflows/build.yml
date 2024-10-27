@@ -51,19 +51,33 @@ jobs:
       - name: Checkout qt-embedder
         uses: actions/checkout@v4
 
+      - name: Create folder structure
+        run: |
+          mkdir -p 3rdparty/out/host_debug_unopt/
+
       - name: Checkout flutter engine
         uses: actions/checkout@v4
         with:
-          repo: iamsergio/engine.git
+          repository: iamsergio/engine.git
           ref: wip/multiwindow
-          path: ${{ github.workspace}}/../engine
+          path: 3rdparty/flutter/
 
-      - name: test
-        run: ls ${{ github.workspace}}/..
+      - name: Fix embedder header
+        run: cp 3rdparty/flutter/shell/platform/embedder/embedder.h 3rdparty/flutter/shell/platform/embedder/flutter_embedder.h
 
+      - name: Download engine binary
+        run: |
+          ./download_engine.sh
+          cp libflutter_engine.so 3rdparty/out/host_debug_unopt/
+        env:
+          GH_TOKEN: ${{ github.token }}
 
-      # - name: Configure project
-      #   run: cmake -S . -B ./build-debug --preset debug
+      - name: Configure project
+        run: cmake -S . -B ./build-dev --preset dev
+        env:
+          FLUTTER_ENGINE_FOLDER: ${{ github.workspace }}/3rdparty/flutter/
 
-      # - name: Build Project ${{ matrix.preset.build_preset_arg }}
-      #   run: cmake --build ./build-debug
+      - name: Build Project ${{ matrix.preset.build_preset_arg }}
+        run: cmake --build ./build-dev
+        env:
+          FLUTTER_ENGINE_FOLDER: ${{ github.workspace }}/3rdparty/flutter/
