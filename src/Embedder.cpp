@@ -25,8 +25,6 @@
 
 #include <iostream>
 #include <filesystem>
-#include <print>
-#include <sys/types.h>
 
 #ifdef QT_EMBEDDER_LINKS_TO_GL
 #include <EGL/egl.h>
