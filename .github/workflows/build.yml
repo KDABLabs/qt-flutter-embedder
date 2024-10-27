@@ -48,8 +48,19 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      - name: Checkout sources
+      - name: Checkout qt-embedder
         uses: actions/checkout@v4
+
+      - name: Checkout flutter engine
+        uses: actions/checkout@v4
+        with:
+          repo: iamsergio/engine.git
+          ref: wip/multiwindow
+          path: ${{ github.workspace}}/../engine
+
+      - name: test
+        run: ls ${{ github.workspace}}/..
+
 
       # - name: Configure project
       #   run: cmake -S . -B ./build-debug --preset debug
