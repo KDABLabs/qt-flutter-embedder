@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [[ "$(uname)" == "Darwin" ]]; then
     FLUTTER_HOST="macos"
 else

@@ -41,7 +41,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt update -qq
-          sudo apt install ninja-build lld xvfb -y
+          sudo apt install libgtk-3-dev libglib2.0-dev ninja-build lld xvfb -y
 
       - uses: subosito/flutter-action@v2
         with:
@@ -62,6 +62,12 @@ jobs:
           ref: wip/multiwindow
           path: 3rdparty/flutter/
 
+      - name: debug
+        run: |
+          flutter --version
+          which flutter
+          which dart
+
       - name: Fix embedder header
         run: cp 3rdparty/flutter/shell/platform/embedder/embedder.h 3rdparty/flutter/shell/platform/embedder/flutter_embedder.h
 
@@ -81,3 +87,9 @@ jobs:
         run: cmake --build ./build-dev
         env:
           FLUTTER_ENGINE_FOLDER: ${{ github.workspace }}/3rdparty/flutter/
+
+      # - name: Build example
+      #   run: |
+      #     ./build_example.sh
+      #   env:
+      #     FLUTTER_ENGINE_FOLDER: ${{ github.workspace }}/3rdparty/flutter/
