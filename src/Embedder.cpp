@@ -506,7 +506,6 @@ void Embedder::dumpGLInfo(bool printExtensions)
         int extensionCnt = 0;
         glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCnt);
 
-        const char *extensions = GL_CHARPTR(GL_EXTENSIONS);
         Q_ASSERT(eglGetCurrentDisplay() != EGL_NO_DISPLAY);
 
         QStringList extensionList;

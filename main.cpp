@@ -133,5 +133,5 @@ int main(int argc, char **argv)
         qDebug() << "Adding Window";
         embedder.addWindow();
     }
-    return app.exec();
+    return QApplication::exec();
 }

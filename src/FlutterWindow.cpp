@@ -30,7 +30,7 @@ FlutterWindow::FlutterWindow(Embedder &embedder)
 
 void FlutterWindow::resizeEvent(QResizeEvent *ev)
 {
-    const float pixelRatio = devicePixelRatio();
+    const qreal pixelRatio = devicePixelRatio();
 
     FlutterWindowMetricsEvent event = {};
     event.struct_size = sizeof(event);
