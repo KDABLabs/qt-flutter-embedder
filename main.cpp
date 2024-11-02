@@ -12,14 +12,14 @@
 #include "src/Embedder.h"
 #include "src/FlutterWindow.h"
 
-#include <string>
+#include "flutter/encodable_value.h"
 
 #include <QApplication>
 #include <QThread>
 #include <QDebug>
 #include <QCommandLineParser>
 
-#include "flutter/encodable_value.h"
+#include <string>
 
 using namespace KDAB;
 
