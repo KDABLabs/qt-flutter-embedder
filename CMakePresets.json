@@ -26,6 +26,24 @@
       }
     },
     {
+      "name": "tidy",
+      "description": "clang-tidy",
+      "inherits": "dev",
+      "binaryDir": "${sourceDir}/build-tidy",
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
+      }
+    },
+    {
+      "name": "tidy-werror",
+      "description": "clang-tidy with -Werror",
+      "inherits": "dev",
+      "binaryDir": "${sourceDir}/build-tidy-werror",
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*"
+      }
+    },
+    {
       "name": "rel",
       "description": "rel",
       "generator": "Ninja",
