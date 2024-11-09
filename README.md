@@ -19,7 +19,6 @@ Can be used to launch a 100% flutter app or to integrate flutter into an existin
 - Keyboard support
 - Vulkan / Metal / D3D
 - Integrate into QWidget or QtQuick
-- GitHub actions CI once 3.26 is released
 
 ## Licensing
 
