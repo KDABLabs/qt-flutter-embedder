@@ -29,8 +29,19 @@ RUN apt update -qq && apt install build-essential software-properties-common lld
         mesa-common-dev libglu1-mesa-dev libglib2.0-dev libfontconfig \
         libxkbcommon-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev \
         libxkbcommon-x11-0 libssl-dev openssl unzip clang libgtk-3-dev \
-        qt6-base-dev time qt6-base-private-dev \
+        qt6-base-dev time qt6-base-private-dev xvfb \
         -y
+
+# Install GitHub command-line interface (gh)
+# Instructions copied from https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+RUN mkdir -p -m 755 /etc/apt/keyrings \
+    && curl -s https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+    && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install gh -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 USER ubuntu
 
@@ -58,20 +69,3 @@ RUN mkdir actions-runner && cd actions-runner && \
     echo "93ac1b7ce743ee85b5d386f5c1787385ef07b3d7c728ff66ce0d3813d5f46900  actions-runner-linux-x64-2.320.0.tar.gz" | shasum -a 256 -c && \
     tar xzf ./actions-runner-linux-x64-2.320.0.tar.gz && \
     ./config.sh --url https://github.com/KDABLabs/qt-flutter-embedder --token $GITHUB_RUNNER_TOKEN
-
-# More dependencies, TODO: move up!
-USER root
-RUN apt install xvfb -y
-
-# Install GitHub command-line interface (gh)
-# Instructions copied from https://github.com/cli/cli/blob/trunk/docs/install_linux.md
-RUN mkdir -p -m 755 /etc/apt/keyrings \
-    && curl -s https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-    && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && apt-get update \
-    && apt-get install gh -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-USER ubuntu
