@@ -12,10 +12,12 @@ Can be used to launch a 100% flutter app or to integrate flutter into an existin
 - OpenGLES
 - OpenGL (with a patched flutter engine)
 - QWindow
+- Platform Channels (Dart calling C++)
 
 ## To-do
 
-- Platform Channels
+- Platform Channels (C++ calling Dart)
+- Plugin registration
 - Keyboard support
 - Vulkan / Metal / D3D
 - Integrate into QWidget or QtQuick
