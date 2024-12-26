@@ -22,6 +22,18 @@ Can be used to launch a 100% flutter app or to integrate flutter into an existin
 - Vulkan / Metal / D3D
 - Integrate into QWidget or QtQuick
 
+## Instructions
+
+Install `ms-vscode-remote.remote-containers` extension in vscode and open the `.devcontainer`.
+
+Build the embedder.
+
+Build the example by running `build_example.sh`.
+
+Run the example:
+`./build-dev/qtembedder -m -e examples/default_counter_app`
+
+
 ## Licensing
 
 Licensed as GPL-3, feel free to contact us for other licensing options.
