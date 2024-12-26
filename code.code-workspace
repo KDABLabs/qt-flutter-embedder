@@ -43,8 +43,7 @@
         ],
         "cwd": "${workspaceFolder:root}",
         "initCommands": [
-          "settings set target.process.stop-on-exec false",
-          "command script import /data/secured/home/serj/Qt/Tools/QtCreator/share/qtcreator/debugger/lldbbridge.py"
+          "settings set target.process.stop-on-exec false"
         ],
         "sourceMap": {
           "/home/qt/work/qt": "$${QT_INSTALL}/../Src"
