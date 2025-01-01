@@ -65,7 +65,7 @@ RUN cd $FLUTTER_ENGINE_FOLDER && ./build.sh && cp ./shell/platform/embedder/embe
 # Install GitHub Actions runner
 
 RUN mkdir actions-runner && cd actions-runner && \
-    curl -o actions-runner-linux-x64-2.320.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.320.0/actions-runner-linux-x64-2.320.0.tar.gz && \
-    echo "93ac1b7ce743ee85b5d386f5c1787385ef07b3d7c728ff66ce0d3813d5f46900  actions-runner-linux-x64-2.320.0.tar.gz" | shasum -a 256 -c && \
-    tar xzf ./actions-runner-linux-x64-2.320.0.tar.gz && \
+    curl -o actions-runner-linux-x64-2.321.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz && \
+    echo "ba46ba7ce3a4d7236b16fbe44419fb453bc08f866b24f04d549ec89f1722a29e  actions-runner-linux-x64-2.321.0.tar.gz" | shasum -a 256 -c && \
+    tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz && \
     ./config.sh --url https://github.com/KDABLabs/qt-flutter-embedder --token $GITHUB_RUNNER_TOKEN
