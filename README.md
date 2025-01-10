@@ -24,15 +24,13 @@ Can be used to launch a 100% flutter app or to integrate flutter into an existin
 
 ## Instructions
 
-Install `ms-vscode-remote.remote-containers` extension in vscode and open the `.devcontainer`.
-
-Build the embedder.
-
-Build the example by running `build_example.sh`.
-
-Run the example:
-`./build-dev/qtembedder -m -e examples/default_counter_app`
-
+```bash
+git submodule update --init
+cmake --preset=dev
+cmake --build  build-dev
+build_example.sh
+build-dev/qtembedder -m -e examples/default_counter_app
+```
 
 ## Licensing
 

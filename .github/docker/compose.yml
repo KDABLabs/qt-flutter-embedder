@@ -1,5 +1,0 @@
-services:
-  github-runner:
-    image: qt-flutter-embedder
-    command: /home/ubuntu/actions-runner/run.sh
-    restart: always

@@ -14,30 +14,38 @@ jobs:
       fail-fast: true
       matrix:
         os:
-          - self-hosted
-          # - windows-latest
-          # - macos-latest
+          - ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
         with:
-          fetch-depth: 0
-
-      - name: Install ninja-build tool (must be after Qt due PATH changes)
-        if: ${{ runner.os == 'Windows' }}
-        uses: turtlesec-no/get-ninja@main
-
-      - name: Make sure MSVC is found when Ninja generator is in use
-        if: ${{ runner.os == 'Windows' }}
-        uses: ilammy/msvc-dev-cmd@v1
+          version: 6.6.0
+          cache: true
 
       - name: Checkout qt-embedder
         uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install clang
+        run: sudo apt-get update && sudo apt-get install -y clang ninja-build libgtk-3-dev unzip  libssl-dev lld curl wget gdebi-core libdbus-glib-1-2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Download flutter engine
+        run: sh download_engine.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Configure project
         run: cmake -S . -B ./build-dev --preset dev
 
-      - name: Build Project ${{ matrix.preset.build_preset_arg }}
+      - name: Build Project
         run: cmake --build ./build-dev
 
       - name: Build example

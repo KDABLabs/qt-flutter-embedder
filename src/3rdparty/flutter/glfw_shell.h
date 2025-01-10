@@ -5,7 +5,7 @@
 #pragma once
 
 #include "incoming_message_dispatcher.h"
-#include "flutter_embedder.h"
+#include "embedder.h"
 
 #include <mutex>
 #include <atomic>
