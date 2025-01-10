@@ -13,7 +13,7 @@
 
 #include <QVector>
 
-#include <flutter_embedder.h>
+#include <embedder.h>
 #include "3rdparty/flutter/glfw_shell.h"
 
 class QOpenGLContext;

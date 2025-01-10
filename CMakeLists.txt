@@ -18,42 +18,29 @@ set(CMAKE_INCLUDE_CURRENT_DIRS ON)
 
 find_package(Qt6 6.6 NO_MODULE REQUIRED COMPONENTS Widgets OpenGL)
 
-if(NOT DEFINED ENV{FLUTTER_ENGINE_FOLDER})
-  message(FATAL_ERROR "Point env var FLUTTER_ENGINE_FOLDER to engine folder")
-endif()
-
 if(MSVC)
+  # Windows is not tested, this probably doesn't work
   set(FLUTTER_ENGINE_LIBRARY flutter_engine.lib)
 else()
-  if(EXISTS "$ENV{FLUTTER_ENGINE_FOLDER}/rel/")
-    if(QT_EMBEDDER_AOT)
-      set(FLUTTER_ENGINE_LIBRARY
-          rel/libflutter_engine.${CMAKE_SHARED_LIBRARY_SUFFIX})
-    else()
-      set(FLUTTER_ENGINE_LIBRARY
-          dbg_unopt/libflutter_engine.${CMAKE_SHARED_LIBRARY_SUFFIX})
-    endif()
-    set(FLUTTER_ENGINE_INCLUDE_DIR $ENV{FLUTTER_ENGINE_FOLDER})
-  else()
-    if(APPLE)
-      set(BUILD_FOLDER_NAME host_debug_unopt_arm64)
-    else()
-      set(BUILD_FOLDER_NAME host_debug_unopt)
-    endif()
-
+  if(QT_EMBEDDER_AOT)
     set(FLUTTER_ENGINE_LIBRARY
-        ../out/${BUILD_FOLDER_NAME}/libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX}
+        ${CMAKE_SOURCE_DIR}/engine_binaries/rel/libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
-    set(FLUTTER_ENGINE_INCLUDE_DIR
-        $ENV{FLUTTER_ENGINE_FOLDER}/../out/${BUILD_FOLDER_NAME})
+  else()
+    set(FLUTTER_ENGINE_LIBRARY
+        ${CMAKE_SOURCE_DIR}/engine_binaries/dbg_unopt/libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
   endif()
 endif()
 
-message(
-  "FLUTTER_ENGINE_LIBRARY=$ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY}"
-)
+message("FLUTTER_ENGINE_LIBRARY=${FLUTTER_ENGINE_LIBRARY}}")
 
-include_directories(${FLUTTER_ENGINE_INCLUDE_DIR})
+if(NOT EXISTS ${FLUTTER_ENGINE_LIBRARY})
+  message(
+    FATAL_ERROR
+      "Could not find ${FLUTTER_ENGINE_LIBRARY}. Did you run dowload_engine.sh ?"
+  )
+endif()
 
 if(ENABLE_ASAN)
   add_compile_options(-fsanitize=address -fsanitize=undefined)
@@ -62,31 +49,27 @@ endif()
 
 add_library(
   flutter_common_client_wrapper STATIC
-  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/plugin_registrar.cc
-  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/core_implementations.cc
-  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/standard_codec.cc
-  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/engine_method_result.cc
-  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/engine_method_result.cc
-  $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/incoming_message_dispatcher.cc
-)
+  3rdparty/flutter/shell/platform/common/client_wrapper/plugin_registrar.cc
+  3rdparty/flutter/shell/platform/common/client_wrapper/core_implementations.cc
+  3rdparty/flutter/shell/platform/common/client_wrapper/standard_codec.cc
+  3rdparty/flutter/shell/platform/common/client_wrapper/engine_method_result.cc
+  3rdparty/flutter/shell/platform/common/client_wrapper/engine_method_result.cc
+  3rdparty/flutter/shell/platform/common/incoming_message_dispatcher.cc)
 
 target_include_directories(
   flutter_common_client_wrapper
-  PUBLIC
-    "$ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/public"
-    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/embedder/
-    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common
-    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper
-    $ENV{FLUTTER_ENGINE_FOLDER}/shell/platform/common/client_wrapper/include/
-    "$ENV{FLUTTER_ENGINE_FOLDER}/..")
+  PUBLIC 3rdparty/flutter/shell/platform/common/public
+         3rdparty/flutter/shell/platform/embedder/
+         3rdparty/flutter/shell/platform/common
+         3rdparty/flutter/shell/platform/common/client_wrapper
+         3rdparty/flutter/shell/platform/common/client_wrapper/include/
+         3rdparty/flutter/..)
 
 add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp
                           src/3rdparty/flutter/glfw_shell.cpp)
 
-target_link_libraries(
-  qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
-  $ENV{FLUTTER_ENGINE_FOLDER}/${FLUTTER_ENGINE_LIBRARY}
-  flutter_common_client_wrapper)
+target_link_libraries(qtembedder Qt6::Widgets Qt6::OpenGL Qt6::GuiPrivate
+                      ${FLUTTER_ENGINE_LIBRARY} flutter_common_client_wrapper)
 
 if(NOT APPLE)
   target_link_libraries(qtembedder EGL)

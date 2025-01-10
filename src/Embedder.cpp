@@ -11,7 +11,6 @@
 
 #include "Embedder.h"
 #include "FlutterWindow.h"
-#include "flutter_embedder.h"
 
 #include <QOpenGLContext>
 #include <QGuiApplication>

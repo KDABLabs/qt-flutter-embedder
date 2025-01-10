@@ -13,7 +13,7 @@
 
 #include <QWindow>
 
-#include <flutter_embedder.h>
+#include <embedder.h>
 
 class QOpenGLContext;
 
