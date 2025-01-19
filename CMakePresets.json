@@ -2,18 +2,25 @@
   "version": 3,
   "configurePresets": [
     {
+      "name": "base",
+      "environment": {
+        "CXX": "clang++",
+        "CC": "clang"
+      },
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "generator": "Ninja"
+    },
+    {
       "name": "dev",
+      "inherits": "base",
       "description": "dev",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-dev",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "DEVELOPER_BUILD": "ON"
-      },
-      "environment": {
-        "CXX": "clang++",
-        "CC": "clang"
       }
     },
     {
@@ -45,12 +52,11 @@
     },
     {
       "name": "rel",
+      "inherits": "base",
       "description": "rel",
-      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-rel",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "QT_EMBEDDER_AOT": "ON"
       }
     }

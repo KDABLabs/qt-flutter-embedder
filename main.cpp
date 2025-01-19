@@ -121,7 +121,9 @@ int main(int argc, char **argv)
         features |= Embedder::Feature::GL;
 
     Embedder embedder(features);
+#ifdef DEVELOPER_BUILD
     registerDummyMethodChannel(embedder);
+#endif
 
     const auto icuPath = std::string(FLUTTER_ICUDTL_DIR) + std::string("/icudtl.dat");
 
