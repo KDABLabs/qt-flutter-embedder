@@ -31,20 +31,25 @@ static Embedder::Features defaultFeatures(int argc, char **argv)
 
     bool gl = false;
     bool gles = false;
+    bool vulkan = false;
 
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "-gl") == 0)
+        if (strcmp(argv[i], "--gl") == 0 || strcmp(argv[i], "-g") == 0)
             gl = true;
-        if (strcmp(argv[i], "-gles") == 0)
+        if (strcmp(argv[i], "--gles") == 0 || strcmp(argv[i], "-e") == 0)
             gles = true;
+        if (strcmp(argv[i], "--vulkan") == 0 || strcmp(argv[i], "-v") == 0)
+            vulkan = true;
     }
 
-    if (gl && gles) {
-        qFatal("Don't specify both -gl and -gles");
-    } else if (gles) {
-        features |= Embedder::Feature::GLES;
-    } else if (gl) {
+    if (gl && !vulkan && !gles) {
         features |= Embedder::Feature::GL;
+    } else if (gles && !vulkan && !gl) {
+        features |= Embedder::Feature::GLES;
+    } else if (vulkan && !gl && !gles) {
+        features |= Embedder::Feature::Vulkan;
+    } else if (gles || gl || vulkan) {
+        qFatal("-gl, -gles, -vulkan are mutually exclusive");
     }
 
     return features;
@@ -91,10 +96,15 @@ int main(int argc, char **argv)
     QCommandLineOption enableTextureGLContextOpt = { { "t", "textureGLContext" }, "Enable GL context for texture uploads (broken still)" };
     QCommandLineOption useGLESopt = { { "e", "gles" }, "Explicitly request GLES instead of the default" };
     QCommandLineOption useGLopt = { { "g", "gl" }, "Explicitly request GL instead of the default" };
+    QCommandLineOption useVulkanOpt = { { "v", "vulkan" }, "Explicitly request Vulkan instead of the default" };
+    QCommandLineOption useImpellerOpt = { { "i", "enable-impeller" }, "Enable Impeller rendering backend" };
+
     parser.addOption(enableMultiWindowOpt);
     parser.addOption(enableTextureGLContextOpt);
     parser.addOption(useGLESopt);
     parser.addOption(useGLopt);
+    parser.addOption(useVulkanOpt);
+    parser.addOption(useImpellerOpt);
     parser.addPositionalArgument("project", "the root of the flutter project directory");
     parser.addHelpOption();
     parser.process(app);
@@ -120,6 +130,14 @@ int main(int argc, char **argv)
     if (parser.isSet(useGLopt))
         features |= Embedder::Feature::GL;
 
+    if (parser.isSet(useImpellerOpt))
+        features |= Embedder::Feature::Impeller;
+
+    if (parser.isSet(useVulkanOpt)) {
+        features |= Embedder::Feature::Vulkan;
+        qFatal("Vulkan is not supported yet");
+    }
+
     Embedder embedder(features);
 #ifdef DEVELOPER_BUILD
     registerDummyMethodChannel(embedder);
@@ -127,7 +145,20 @@ int main(int argc, char **argv)
 
     const auto icuPath = std::string(FLUTTER_ICUDTL_DIR) + std::string("/icudtl.dat");
 
-    if (!embedder.runFlutter(argc, argv, projectPath.toStdString(), icuPath)) {
+    std::vector<char *> modifiedArgv;
+    modifiedArgv.reserve(argc + 1);
+    for (int i = 0; i < argc; ++i) {
+        modifiedArgv.push_back(argv[i]);
+    }
+
+    if (parser.isSet(useImpellerOpt)) {
+        const char *impellerFlag = "--enable-impeller=true";
+        auto impellerArg = new char[strlen(impellerFlag) + 1];
+        strcpy(impellerArg, impellerFlag);
+        modifiedArgv.push_back(impellerArg);
+    }
+
+    if (!embedder.runFlutter(modifiedArgv.size(), modifiedArgv.data(), projectPath.toStdString(), icuPath)) {
         return -1;
     }
 

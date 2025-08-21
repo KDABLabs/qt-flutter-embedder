@@ -273,7 +273,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         Q_UNUSED(embedder);
 
         FlutterDesktopMessage dmessage = ConvertToDesktopMessage(*message);
-        embedder->m_state.message_dispatcher->HandleMessage(dmessage, [] {}, [] {});
+        embedder->m_state.message_dispatcher->HandleMessage(dmessage, [] { }, [] { });
     };
 
     FlutterChannelUpdateCallback channelUpdateCallback = [](const FlutterChannelUpdate * /* channel update */,
@@ -405,7 +405,8 @@ QSurfaceFormat Embedder::surfaceFormat(Features features)
         fmt.setRenderableType(QSurfaceFormat::OpenGLES);
     else if (features & Feature::GL)
         fmt.setRenderableType(QSurfaceFormat::OpenGL);
-
+    else
+        fmt.setRenderableType(QSurfaceFormat::OpenGL); // TODO: vulkan uses QSurfaceFormat ?
     return fmt;
 }
 
