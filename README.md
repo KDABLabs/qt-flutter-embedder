@@ -26,9 +26,10 @@ Can be used to launch a 100% flutter app or to integrate flutter into an existin
 
 ```bash
 git submodule update --init
+flutter prefetch --linux
 cmake --preset=dev
-cmake --build  build-dev
-build_example.sh
+cmake --build build-dev
+./build_example.sh
 build-dev/qtembedder -m -e examples/default_counter_app
 ```
 
