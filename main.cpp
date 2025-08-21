@@ -152,10 +152,17 @@ int main(int argc, char **argv)
     }
 
     if (parser.isSet(useImpellerOpt)) {
+        // TODO: impeller docs mention this, but no idea if it works
+
         const char *impellerFlag = "--enable-impeller=true";
         auto impellerArg = new char[strlen(impellerFlag) + 1];
         strcpy(impellerArg, impellerFlag);
         modifiedArgv.push_back(impellerArg);
+
+        const char *impellerBackendFlag = "--impeller-backend=vulkan";
+        auto impellerBackendArg = new char[strlen(impellerBackendFlag) + 1];
+        strcpy(impellerBackendArg, impellerBackendFlag);
+        modifiedArgv.push_back(impellerBackendArg);
     }
 
     if (!embedder.runFlutter(modifiedArgv.size(), modifiedArgv.data(), projectPath.toStdString(), icuPath)) {
