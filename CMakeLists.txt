@@ -53,21 +53,21 @@ endif()
 
 add_library(
   flutter_common_client_wrapper STATIC
-  3rdparty/flutter/shell/platform/common/client_wrapper/plugin_registrar.cc
-  3rdparty/flutter/shell/platform/common/client_wrapper/core_implementations.cc
-  3rdparty/flutter/shell/platform/common/client_wrapper/standard_codec.cc
-  3rdparty/flutter/shell/platform/common/client_wrapper/engine_method_result.cc
-  3rdparty/flutter/shell/platform/common/client_wrapper/engine_method_result.cc
-  3rdparty/flutter/shell/platform/common/incoming_message_dispatcher.cc)
+  3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper/plugin_registrar.cc
+  3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper/core_implementations.cc
+  3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper/standard_codec.cc
+  3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper/engine_method_result.cc
+  3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper/engine_method_result.cc
+  3rdparty/flutter/engine/src/flutter/shell/platform/common/incoming_message_dispatcher.cc)
 
 target_include_directories(
   flutter_common_client_wrapper
-  PUBLIC 3rdparty/flutter/shell/platform/common/public
-         3rdparty/flutter/shell/platform/embedder/
-         3rdparty/flutter/shell/platform/common
-         3rdparty/flutter/shell/platform/common/client_wrapper
-         3rdparty/flutter/shell/platform/common/client_wrapper/include/
-         3rdparty/flutter/..)
+  PUBLIC 3rdparty/flutter/engine/src/flutter/shell/platform/common/public
+         3rdparty/flutter/engine/src/flutter/shell/platform/embedder/
+         3rdparty/flutter/engine/src/flutter/shell/platform/common
+         3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper
+         3rdparty/flutter/engine/src/flutter/shell/platform/common/client_wrapper/include/
+         3rdparty/flutter/engine/src/flutter/..)
 
 add_executable(qtembedder main.cpp src/Embedder.cpp src/FlutterWindow.cpp
                           src/3rdparty/flutter/glfw_shell.cpp)
