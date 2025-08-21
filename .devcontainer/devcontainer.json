@@ -1,0 +1,31 @@
+{
+    "name": "qt-flutter-embedder",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined"
+    ],
+    "workspaceMount": "source=${localWorkspaceFolder}/,target=/qt-flutter-embedder/,type=bind",
+    "workspaceFolder": "/qt-flutter-embedder",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vadimcn.vscode-lldb",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "Dart-Code.dart-code",
+                "Dart-Code.flutter",
+                "mhutchie.git-graph",
+                "Gruntfuggly.todo-tree",
+                "ms-vscode.cmake-tools"
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash",
+                "workbench.colorTheme": "Visual Studio Light"
+            }
+        }
+    },
+    "remoteUser": "ubuntu"
+}
