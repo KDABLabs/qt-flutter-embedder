@@ -10,6 +10,10 @@ project(qtwidgets_basic)
 
 option(DEVELOPER_BUILD "Enable DEVELOPER_BUILD (tests, helper code, etc)" OFF)
 
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flutter/README.md")
+  message(FATAL_ERROR "Missing required Flutter submodule. Please run: git submodule update --init")
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_AUTOMOC ON)
@@ -84,8 +88,8 @@ endif()
 
 # ICU
 find_program(FLUTTER_EXE flutter REQUIRED)
-message(STATUS "Flutter SDK: ${FLUTTER_EXE}")
 get_filename_component(FLUTTER_SDK_PATH ${FLUTTER_EXE} PATH)
+message(STATUS "Flutter SDK: ${FLUTTER_SDK_PATH}")
 file(GLOB_RECURSE ICUDTL "${FLUTTER_SDK_PATH}/icudtl.dat")
 message(STATUS "flutter icudtl.dat file: ${ICUDTL}")
 if(ICUDTL)
@@ -95,7 +99,7 @@ if(ICUDTL)
     COMMAND ${CMAKE_COMMAND} -E copy ${ICUDTL} ${CMAKE_BINARY_DIR}
     COMMENT "Copying icudtl.dat to ${CMAKE_BINARY_DIR}")
 else()
-  message(FATAL_ERROR "icudtl.dat not found!")
+  message(FATAL_ERROR "icudtl.dat not found! Try running: flutter precache --linux")
 endif()
 
 if(QT_EMBEDDER_AOT)
