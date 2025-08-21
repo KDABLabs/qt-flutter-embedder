@@ -18,6 +18,11 @@ echo "Fetching engine version ${ENGINE_VERSION}..."
 # Get 2nd to last field, which is the release tag
 RELEASE_TAG=`gh release list --repo ardera/flutter-ci | grep $ENGINE_VERSION | awk '{print $(NF-1)}'`
 
+if [ -z "$RELEASE_TAG" ]; then
+    echo "Error: Could not find release tag for engine version ${ENGINE_VERSION}. Maybe run: gh auth login"
+    exit 1
+fi
+
 echo "Release tag is ${RELEASE_TAG}"
 
 mkdir -p engine_binaries/rel
