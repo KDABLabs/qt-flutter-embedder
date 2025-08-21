@@ -1,8 +1,17 @@
 #!/bin/bash
 
+# usage:
+# ./download_engine.sh
+# or
+# ./download_engine.sh 3.35.1
+
 set -e
 
-ENGINE_VERSION=`flutter --version | grep -oP '^Flutter \K[^\s]+'`
+if [ $# -eq 1 ]; then
+    ENGINE_VERSION="$1"
+else
+    ENGINE_VERSION=`flutter --version | grep -oP '^Flutter \K[^\s]+'`
+fi
 
 echo "Fetching engine version ${ENGINE_VERSION}..."
 
