@@ -39,6 +39,8 @@ jobs:
         with:
           channel: stable
           cache: true
+          flutter-version: 3.32.7
+        run: flutter precache --linux
 
       - name: Download flutter engine
         run: sh download_engine.sh
