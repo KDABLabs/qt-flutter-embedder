@@ -26,7 +26,7 @@ FROM ubuntu:24.04
 
 ENV TZ=Europe/Berlin
 ENV LC_CTYPE=C.UTF-8
-ENV PATH=$PATH:/home/ubuntu/flutter/bin/:/home/ubuntu/flutter/bin/cache/dart-sdk/bin/
+ENV PATH=$PATH:/qt-flutter-embedder/3rdparty/flutter/bin/:/qt-flutter-embedder/3rdparty/flutter/bin/cache/dart-sdk/bin/
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -54,10 +54,6 @@ RUN echo 'ALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 WORKDIR /home/ubuntu/
 USER ubuntu
 RUN git config --global advice.detachedHead false
-RUN git clone https://github.com/flutter/flutter.git -b 3.27.4
-RUN flutter config --no-analytics && \
-    flutter --version && \
-    flutter precache --linux
 
 RUN pip install aqtinstall --break-system-packages && \
     ~/.local/bin/aqt install-qt linux desktop 6.6.0 gcc_64 -O /home/ubuntu/Qt/

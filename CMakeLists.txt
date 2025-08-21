@@ -105,3 +105,13 @@ endif()
 if(QT_EMBEDDER_AOT)
   target_compile_definitions(qtembedder PRIVATE FLUTTER_AOT)
 endif()
+
+add_custom_target(
+  flutter_precache
+  COMMAND flutter config --no-analytics
+  COMMAND flutter precache --linux
+  COMMENT "Configuring Flutter: disabling analytics and precaching Linux dependencies"
+  VERBATIM
+)
+
+add_dependencies(qtembedder flutter_precache)
