@@ -8,7 +8,7 @@
 
 # Instructions:
 # docker build -t qt-flutter-embedder .
-# docker run -it -v /data/sources/flutter/qt-flutter-embedder/:/qt-flutter-embedder/ --device=/dev/dri:/dev/dri -v /tmp/.X11-unix:/tmp/.X11-unix -u 1000:1000 qt-flutter-embedder
+# docker run -it -v /data/sources/flutter/qt-flutter-embedder/:/qt-flutter-embedder/ -e XDG_RUNTIME_DIR=/tmp -e DISPLAY=$DISPLAY --device=/dev/dri -v /tmp/.X11-unix:/tmp/.X11-unix:rw -u $(id -u):$(id -g) qt-flutter-embedder
 # cd /qt-flutter-embedder/ && cmake --preset=dev
 # cd build-dev && ninja
 
@@ -33,7 +33,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt update -qq && apt install -y vim build-essential software-properties-common lld git cmake ninja-build python3 \
     python3-dev clang llvm libclang-15-dev libxslt-dev mesa-common-dev libglu1-mesa-dev libglib2.0-dev libfontconfig \
     libxkbcommon-dev mesa-utils libgl1-mesa-dev libglu1-mesa-dev nlohmann-json3-dev clang-format-15 wget curl \
-    file unzip zip which xz-utils libgtk-3-dev
+    file unzip zip which xz-utils libgtk-3-dev libxcb-icccm4 libxcb-cursor-dev libx11-xcb1 libxcb-shape0-dev libxcb-keysyms1
 
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libasan.so.8 /usr/lib/libasan.so
 RUN ln -sf /usr/bin/qmake6 /usr/bin/qmake
