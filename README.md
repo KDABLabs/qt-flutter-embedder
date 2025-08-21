@@ -30,7 +30,7 @@ flutter prefetch --linux
 cmake --preset=dev
 cmake --build build-dev
 ./build_example.sh
-build-dev/qtembedder -m -e examples/default_counter_app
+./build-dev/qtembedder -m -e examples/default_counter_app
 ```
 
 ## Licensing
