@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.21)
 project(qtwidgets_basic)
 
 option(DEVELOPER_BUILD "Enable DEVELOPER_BUILD (tests, helper code, etc)" OFF)
+option(USE_PREBUILT_ENGINE "Uses the engine in engine_binaries/ instead of building it (requires running download_engine.sh)" ON)
 
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/flutter/README.md")
   message(FATAL_ERROR "Missing required Flutter submodule. Please run: git submodule update --init")
@@ -26,14 +27,30 @@ if(MSVC)
   # Windows is not tested, this probably doesn't work
   set(FLUTTER_ENGINE_LIBRARY flutter_engine.lib)
 else()
-  if(QT_EMBEDDER_AOT)
-    set(FLUTTER_ENGINE_LIBRARY
-        ${CMAKE_SOURCE_DIR}/engine_binaries/rel/libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX}
-    )
+
+  set(ENGINE_FILENAME libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+  if (USE_PREBUILT_ENGINE)
+    set(HELPER_SCRIPT download_engine.sh)
+    if(QT_EMBEDDER_AOT)
+        set(FLUTTER_ENGINE_LIBRARY
+            ${CMAKE_SOURCE_DIR}/engine_binaries/rel/${ENGINE_FILENAME}
+        )
+    else()
+        set(FLUTTER_ENGINE_LIBRARY
+            ${CMAKE_SOURCE_DIR}/engine_binaries/dbg_unopt1/${ENGINE_FILENAME}
+        )
+    endif()
   else()
-    set(FLUTTER_ENGINE_LIBRARY
-        ${CMAKE_SOURCE_DIR}/engine_binaries/dbg_unopt/libflutter_engine${CMAKE_SHARED_LIBRARY_SUFFIX}
-    )
+    set(HELPER_SCRIPT build_engine.sh)
+    if(QT_EMBEDDER_AOT)
+        # We're only building engine for debug, for now
+        message(FATAL_ERROR "AOT mode is not supported for building the engine from source. Please use USE_PREBUILT_ENGINE=ON with QT_EMBEDDER_AOT=ON or disable AOT mode.")
+    else()
+        set(FLUTTER_ENGINE_LIBRARY
+            ${CMAKE_SOURCE_DIR}/3rdparty/flutter/engine/src/out/host_debug_unopt/${ENGINE_FILENAME}
+        )
+    endif()
   endif()
 endif()
 
@@ -42,7 +59,7 @@ message("FLUTTER_ENGINE_LIBRARY=${FLUTTER_ENGINE_LIBRARY}}")
 if(NOT EXISTS ${FLUTTER_ENGINE_LIBRARY})
   message(
     FATAL_ERROR
-      "Could not find ${FLUTTER_ENGINE_LIBRARY}. Did you run dowload_engine.sh ?"
+      "Could not find ${FLUTTER_ENGINE_LIBRARY}. Did you run ${HELPER_SCRIPT} ?"
   )
 endif()
 

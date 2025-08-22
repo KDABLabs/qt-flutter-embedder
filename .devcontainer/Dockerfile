@@ -58,6 +58,8 @@ RUN git config --global advice.detachedHead false
 RUN pip install aqtinstall --break-system-packages && \
     ~/.local/bin/aqt install-qt linux desktop 6.6.0 gcc_64 -O /home/ubuntu/Qt/
 
+RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /home/ubuntu/depot_tools
+
 WORKDIR /qt-flutter-embedder
 
-ENV PATH=$PATH:/home/ubuntu/Qt/6.6.0/gcc_64/bin/
+ENV PATH=/home/ubuntu/depot_tools:$PATH:/home/ubuntu/Qt/6.6.0/gcc_64/bin/
