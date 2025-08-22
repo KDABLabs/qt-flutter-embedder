@@ -121,7 +121,8 @@ int main(int argc, char **argv)
     if (parser.isSet(enableMultiWindowOpt))
         features |= Embedder::Feature::MultiWindow;
 
-    if (parser.isSet(enableTextureGLContextOpt))
+    // Impeller crashes without texture context
+    if (parser.isSet(enableTextureGLContextOpt) || parser.isSet(useImpellerOpt))
         features |= Embedder::Feature::TextureGLContext;
 
     if (parser.isSet(useGLESopt))
