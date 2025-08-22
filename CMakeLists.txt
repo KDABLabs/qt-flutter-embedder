@@ -38,7 +38,7 @@ else()
         )
     else()
         set(FLUTTER_ENGINE_LIBRARY
-            ${CMAKE_SOURCE_DIR}/engine_binaries/dbg_unopt1/${ENGINE_FILENAME}
+            ${CMAKE_SOURCE_DIR}/engine_binaries/dbg_unopt/${ENGINE_FILENAME}
         )
     endif()
   else()
