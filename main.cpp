@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     QCommandLineParser parser;
     parser.setApplicationDescription("Qt Embedder example");
     QCommandLineOption enableMultiWindowOpt = { { "m", "multiwindow" }, "Enable multi-window mode" };
-    QCommandLineOption enableTextureGLContextOpt = { { "t", "textureGLContext" }, "Enable GL context for texture uploads (broken still)" };
+    QCommandLineOption enableTextureGLContextOpt = { { "t", "textureGLContext" }, "Enable GL context for texture uploads" };
     QCommandLineOption useGLESopt = { { "e", "gles" }, "Explicitly request GLES instead of the default" };
     QCommandLineOption useGLopt = { { "g", "gl" }, "Explicitly request GL instead of the default" };
     QCommandLineOption useVulkanOpt = { { "v", "vulkan" }, "Explicitly request Vulkan instead of the default" };
