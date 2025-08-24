@@ -70,7 +70,7 @@ void registerDummyMethodChannel(Embedder &embedder)
     channel.SetMethodCallHandler(
         [](const flutter::MethodCall<> &call,
            std::unique_ptr<flutter::MethodResult<>> result) {
-            qWarning() << "method call handler!";
+            // qWarning() << "method call handler!";
             result->Success(flutter::EncodableValue(42));
             // result->Error("UNAVAILABLE", "Not available.");
         });

@@ -34,7 +34,7 @@
 #include "binary_messenger_impl.h"
 #include "flutter_messenger.h"
 
-Q_LOGGING_CATEGORY(qtembedder, "qtembedder")
+Q_LOGGING_CATEGORY(qtembedder, "qtembedder", QtWarningMsg)
 
 using namespace KDAB;
 namespace fs = std::filesystem;
@@ -281,7 +281,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         // TODO
         auto embedder = reinterpret_cast<Embedder *>(user_data);
         Q_UNUSED(embedder);
-        qWarning() << "channelUpdateCallback";
+        // qWarning() << "channelUpdateCallback";
     };
 
     FlutterTaskRunnerDescription platformTaskRunner = {};
