@@ -21,14 +21,14 @@ void main() async {
 
   const platform = MethodChannel('qtembedder.kdab.com/testPlatformChannel');
   Timer t = Timer(const Duration(seconds: 2), () async {
-    print("Trying to call platform channel");
+    // print("Trying to call platform channel");
     try {
       final result = await platform.invokeMethod<int>('testPlatformChannel');
-      print("Platform channel returned $result");
+      // print("Platform channel returned $result");
     } on PlatformException catch (e) {
       print("Failed to call platform method: '${e.message}'.");
     }
-    print("Finished trying to call platform channel");
+    // print("Finished trying to call platform channel");
   });
 }
 
