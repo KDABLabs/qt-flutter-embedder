@@ -33,6 +33,10 @@ cmake --build build-dev
 ./build-dev/qtembedder -m -e examples/default_counter_app
 ```
 
+## Troubleshooting
+
+- On Archlinux, use the gcc14 presets, gcc15 is not supported yet.
+
 ## Licensing
 
 Licensed as GPL-3, feel free to contact us for other licensing options.

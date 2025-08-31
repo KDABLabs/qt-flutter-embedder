@@ -4,23 +4,38 @@
     {
       "name": "base",
       "binaryDir": "${sourceDir}/build-${presetName}",
-      "environment": {
-        "CXX": "clang++",
-        "CC": "clang"
-      },
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       },
       "generator": "Ninja"
     },
     {
-      "name": "dev",
+      "name": "base-clang",
       "inherits": "base",
-      "description": "dev",
+      "environment": {
+        "CXX": "clang++",
+        "CC": "clang"
+      }
+    },
+    {
+      "name": "base-gcc14",
+      "inherits": "base",
+      "environment": {
+        "CXX": "g++-14",
+        "CC": "gcc-14"
+      }
+    },
+    {
+      "name": "dev",
+      "inherits": "base-clang",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "DEVELOPER_BUILD": "ON"
       }
+    },
+    {
+      "name": "dev-gcc14",
+      "inherits": ["base-gcc14", "dev"]
     },
     {
       "name": "dev-engine",
@@ -31,15 +46,17 @@
     },
     {
       "name": "dev-asan",
-      "description": "dev-asan",
       "inherits": "dev",
       "cacheVariables": {
         "ENABLE_ASAN": "ON"
       }
     },
     {
+      "name": "dev-asan-gcc14",
+      "inherits": ["base-gcc14", "dev-asan"]
+    },
+    {
       "name": "tidy",
-      "description": "clang-tidy",
       "inherits": "dev",
       "cacheVariables": {
         "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
@@ -47,7 +64,6 @@
     },
     {
       "name": "tidy-werror",
-      "description": "clang-tidy with -Werror",
       "inherits": "dev",
       "cacheVariables": {
         "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*"
@@ -56,11 +72,14 @@
     {
       "name": "rel",
       "inherits": "base",
-      "description": "rel",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "QT_EMBEDDER_AOT": "ON"
       }
+    },
+    {
+      "name": "rel-gcc14",
+      "inherits": ["base-gcc14", "rel"]
     }
   ]
 }
