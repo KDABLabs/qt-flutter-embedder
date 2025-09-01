@@ -55,8 +55,8 @@ protected:
     void closeEvent(QCloseEvent *ev) override;
 
 private:
+    friend class Embedder;
     void sendSizeMetrics(QSize);
-
     Embedder &m_embedder;
     const FlutterViewId m_id;
 };

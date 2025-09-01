@@ -346,6 +346,7 @@ bool Embedder::runFlutter(int argc, char **argv, const std::string &project_path
         return false;
     }
 
+    mainWindow().sendSizeMetrics(mainWindow().size());
     return true;
 }
 
