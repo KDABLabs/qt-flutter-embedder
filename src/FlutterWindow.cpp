@@ -35,15 +35,29 @@ void FlutterWindow::resizeEvent(QResizeEvent *ev)
     FlutterWindowMetricsEvent event = {};
     event.struct_size = sizeof(event);
 
+    sendSizeMetrics(ev->size());
+
+    return QWindow::resizeEvent(ev);
+}
+
+void FlutterWindow::sendSizeMetrics(QSize sz)
+{
+    const qreal pixelRatio = devicePixelRatio();
+
+    FlutterWindowMetricsEvent event = {};
+    event.struct_size = sizeof(event);
+
     // Flutter needs to know in physical pixels
-    event.width = size_t(ev->size().width() * pixelRatio);
-    event.height = size_t(ev->size().height() * pixelRatio);
+    event.width = size_t(sz.width() * pixelRatio);
+    event.height = size_t(sz.height() * pixelRatio);
     event.view_id = m_id;
 
     event.pixel_ratio = pixelRatio;
-    FlutterEngineSendWindowMetricsEvent(m_embedder.engine(), &event);
-
-    return QWindow::resizeEvent(ev);
+    FlutterEngineResult result = FlutterEngineSendWindowMetricsEvent(m_embedder.engine(), &event);
+    if (result != kSuccess) {
+        qWarning() << "FlutterWindow::resizeEvent: Failed to send window metrics event:" << result << "Engine:" << m_embedder.engine()
+                   << "Event width:" << event.width << "height:" << event.height;
+    }
 }
 
 void FlutterWindow::keyPressEvent(QKeyEvent *ev)
@@ -100,7 +114,7 @@ void FlutterWindow::sendMouseEventToFlutter(FlutterPointerPhase phase, double x,
 void FlutterWindow::sendKeyEventToFlutter(QKeyEvent *ev, FlutterKeyEventType type)
 {
     FlutterKeyEvent event;
-    FlutterKeyEventCallback callback = [](bool handled, void *userdata) {};
+    FlutterKeyEventCallback callback = [](bool handled, void *userdata) { };
     event.struct_size = sizeof(event);
     event.synthesized = false;
     event.timestamp = ev->timestamp();
