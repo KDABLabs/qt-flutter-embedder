@@ -45,6 +45,10 @@
       }
     },
     {
+      "name": "dev-engine-gcc14",
+      "inherits": ["base-gcc14", "dev-engine"]
+    },
+    {
       "name": "dev-asan",
       "inherits": "dev",
       "cacheVariables": {
