@@ -42,6 +42,10 @@ void FlutterWindow::resizeEvent(QResizeEvent *ev)
 
 void FlutterWindow::sendSizeMetrics(QSize sz)
 {
+    if (!m_embedder.engine())
+        // No engine yet
+        return;
+
     const qreal pixelRatio = devicePixelRatio();
 
     FlutterWindowMetricsEvent event = {};
